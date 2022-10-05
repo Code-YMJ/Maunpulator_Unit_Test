@@ -1,15 +1,15 @@
-from jeus_armcontrol.jeus_armcontrol import *
+from .jeus_armcontrol import *
 
 class ROBOT():
     
     def __init__(self,
                  grav = DEFAULT_GRAV_ACC_VEC):
 
-        # DEFAULT LINK CHAIN ===========================================
+        # DEFAULT LINK CHAIN =========================================== theta, d, a, alpha, beta, b 
         self.LinkChain = np.array([[       0,    76.5,     0,  -np.pi/2, 0,     0],
-                                  [-np.pi/2,       0,   530,         0, 0,  24.0],
-                                  [ np.pi/2,       0,   474,         0, 0, -24.0],
-                                  [       0,       0,    96,         0, 0,     0]])
+                                   [-np.pi/2,       0,   530,         0, 0,  24.0],
+                                   [ np.pi/2,       0,   474,         0, 0, -24.0],
+                                   [       0,       0,    96,         0, 0,     0]])
   
         # ROBOT 생성
         super().__init__()
@@ -150,3 +150,6 @@ class ROBOT():
         q4 = (-th4-th4_prime)
         
         return np.array([q1, q2, q3, q4])
+
+
+    def Move_Point(x,y,z,rx=0):

@@ -1,9 +1,62 @@
+Device:
+  Port: COM7
+  baudrate: 1000000
+  ProtocolVersion: 2.0
 Joint:
   Number: 4
   Joint_01:
+    index: 11
     a: 0
     alpha: 90
     b: 0
     beta: 0
     d: 0
     theta: 0
+    max_rpm: 100
+    max_acc: 1
+    max_LoadmA: 0.5
+    min_ang: 10
+    max_ang: 350
+    inposition: 0.01 # diff
+  Joint_02:
+    index: 11
+    a: 0
+    alpha: 90
+    b: 0
+    beta: 0
+    d: 0
+    theta: 0
+    max_rpm: 100
+    max_acc: 1
+    max_LoadmA: 0.5
+    min_ang: 10
+    max_ang: 350
+    inposition: 0.01
+  Joint_03:
+    index: 11
+    a: 0
+    alpha: 90
+    b: 0
+    beta: 0
+    d: 0
+    theta: 0
+    max_rpm: 100
+    max_acc: 1
+    max_LoadmA: 0.5
+    min_ang: 10
+    max_ang: 350
+    inposition: 0.01
+  Joint_04:
+    index: 11
+    a: 0
+    alpha: 90
+    b: 0
+    beta: 0
+    d: 0
+    theta: 0
+    max_rpm: 100
+    max_acc: 1
+    max_LoadmA: 0.5
+    min_ang: 10
+    max_ang: 350
+    inposition: 0.01
