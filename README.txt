@@ -1,1 +1,1 @@
-Description is available at http://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/overview/
+Unit Test for 4 axises manupulator 
