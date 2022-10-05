@@ -1,0 +1,9 @@
+Joint:
+  Number: 4
+  Joint_01:
+    a: 0
+    alpha: 90
+    b: 0
+    beta: 0
+    d: 0
+    theta: 0
