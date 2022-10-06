@@ -1,21 +1,26 @@
-from .jeus_armcontrol import *
+from .jeus_kinetictool import *
+from jeus_dynamixel import *
+from jeus_log import *
 
-class ROBOT():
+class jeus_maunpulator():
     
     def __init__(self,
                  grav = DEFAULT_GRAV_ACC_VEC):
-
+        self.module : mot_manipulator()
         # DEFAULT LINK CHAIN =========================================== theta, d, a, alpha, beta, b 
         self.LinkChain = np.array([[       0,    76.5,     0,  -np.pi/2, 0,     0],
                                    [-np.pi/2,       0,   530,         0, 0,  24.0],
                                    [ np.pi/2,       0,   474,         0, 0, -24.0],
                                    [       0,       0,    96,         0, 0,     0]])
-  
+        self.log = jeus_log(os.getcwd(), 'jeus_maunpulator')
         # ROBOT 생성
         super().__init__()
+    
+    def get_param_value(self, config_path, config_filename):
+        if not os.path.exists(config_path+config_filename):
+            return False
         
     def get_fk(self, q):
-
         T = np.eye(4)
         for i in range(len(q)):
             T = T @ get_link_tform_six_para(self.LinkChain[i,:], q[i])
@@ -107,7 +112,7 @@ class ROBOT():
         Dc = (x3**2 + y3**2 - L2**2 - L3**2 ) / (2 * L2 * L3)
         
         if np.abs(Dc + TINY) > 1.0:
-            print("CANNOT REACH THAT POSITION")
+            self.log.Error("CANNOT REACH THAT POSITION")
         
         th3 = np.arccos(Dc)
         
@@ -152,4 +157,4 @@ class ROBOT():
         return np.array([q1, q2, q3, q4])
 
 
-    def Move_Point(x,y,z,rx=0):
+    # def Move_Point(x,y,z,rx=0):

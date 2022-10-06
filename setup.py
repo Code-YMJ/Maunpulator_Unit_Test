@@ -15,3 +15,18 @@ setup(
     author_email='rwjung@robotis.com',
     install_requires=['pyserial']
 )
+
+setup(
+    name='jeus_armcontrol',
+    version='0.0.0',
+    packages=['jeus_armcontrol'],
+    package_dir={'': 'src'},
+    license='None',
+    description='Jeus arm control python package',
+    long_description=open('README.txt').read(),
+    url='https://github.com/ROBOTIS-GIT/DynamixelSDK',
+    author='Code.MJ',
+    author_email='minjae8970@gmail.com',
+    install_requires=['numpy']
+)
+
