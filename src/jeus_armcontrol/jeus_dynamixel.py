@@ -5,7 +5,7 @@ import numpy as np
 import os
 import time
 import sys
-from jeus_log import *
+from .jeus_log import *
 
 
 ctl_table = {}
@@ -105,19 +105,27 @@ class joint_move_param:
     i_gain : int = 0
     d_gain : int = 0
     inposition : int = 0
+    max_rpm : int = 0
+    max_acc : int = 0
+    max_LoadmA : int = 0
+    min_ang : int = 0
+    max_ang : int = 0
+@dataclass
+class device_param:
+    protocol_version :int  = 2.0
+    port : str = str()
+    baudrate : int = 1000000
 
 
 class mot_manipulator:
-    def __init__(self, version, port, baudrate) -> None:
+    def __init__(self, device_parameter : device_param) -> None:
         self.log = jeus_log(os.getcwd(), 'mot_manipulator')
-        self.protocol_version : int = version
-        self.connect_port : str = port
-        self.baudrate : int = baudrate
+        self.device_param :device_param = device_parameter
         
 
     def connect(self) -> bool:
-        self.port_handler  = PortHandler(self.connect_port)
-        self.packet_handler = PacketHandler(self.protocol_version)
+        self.port_handler  = PortHandler(self.device_param.port)
+        self.packet_handler = PacketHandler(self.device_param.protocol_version)
         # Initialize GroupSyncWrite instance
         self.groupSyncWrite = GroupSyncWrite(self.port_handler, self.packet_handler, ctl_table['ADDR_GOAL_POSI']['addr'], ctl_table['ADDR_GOAL_POSI']['size'])
 
@@ -131,7 +139,7 @@ class mot_manipulator:
             self.log.Info("Succeeded to open the port")
     
         # Set port baudrate
-        if not self.port_handler.setBaudRate(self.baudrate):
+        if not self.port_handler.setBaudRate(self.device_param.baudrate):
             self.log.Error("Failed to change the baudrate")
             return False
         else:

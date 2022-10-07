@@ -1,6 +1,6 @@
 Device:
   Port: COM7
-  baudrate: 1000000
+  Baudrate: 1000000
   ProtocolVersion: 2.0
 Joint:
   Number: 4
@@ -12,6 +12,9 @@ Joint:
     beta: 0
     d: 0
     theta: 0
+    p_gain: 0
+    i_gain: 0
+    d_gain: 0
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5
@@ -25,6 +28,9 @@ Joint:
     beta: 0
     d: 0
     theta: 0
+    p_gain: 0
+    i_gain: 0
+    d_gain: 0
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5
@@ -39,6 +45,9 @@ Joint:
     beta: 0
     d: 0
     theta: 0
+    p_gain: 0
+    i_gain: 0
+    d_gain: 0
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5
@@ -53,6 +62,9 @@ Joint:
     beta: 0
     d: 0
     theta: 0
+    p_gain: 0
+    i_gain: 0
+    d_gain: 0
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5

@@ -27,6 +27,6 @@ setup(
     url='https://github.com/ROBOTIS-GIT/DynamixelSDK',
     author='Code.MJ',
     author_email='minjae8970@gmail.com',
-    install_requires=['numpy']
+    install_requires=['numpy', 'pyyaml']
 )
 

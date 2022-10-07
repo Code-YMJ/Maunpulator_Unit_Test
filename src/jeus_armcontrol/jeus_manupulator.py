@@ -1,23 +1,75 @@
 from .jeus_kinetictool import *
-from jeus_dynamixel import *
-from jeus_log import *
-
+from .jeus_dynamixel import *
+from .jeus_log import *
+import yaml
 class jeus_maunpulator():
     
     def __init__(self,
                  grav = DEFAULT_GRAV_ACC_VEC):
-        self.module : mot_manipulator()
+        self.module : mot_manipulator
+        self.device_config = device_param()
+        self.index_list = list()
+        self.module_config = dict()  #ket :joint index //  value : joint parameter
         # DEFAULT LINK CHAIN =========================================== theta, d, a, alpha, beta, b 
-        self.LinkChain = np.array([[       0,    76.5,     0,  -np.pi/2, 0,     0],
-                                   [-np.pi/2,       0,   530,         0, 0,  24.0],
-                                   [ np.pi/2,       0,   474,         0, 0, -24.0],
-                                   [       0,       0,    96,         0, 0,     0]])
+        # self.LinkChain = np.array([[       0,    76.5,     0,  -np.pi/2, 0,     0],
+        #                            [-np.pi/2,       0,   530,         0, 0,  24.0],
+        #                            [ np.pi/2,       0,   474,         0, 0, -24.0],
+        #                            [       0,       0,    96,         0, 0,     0]])
         self.log = jeus_log(os.getcwd(), 'jeus_maunpulator')
         # ROBOT 생성
         super().__init__()
+
+    def generate_module(self):
+        self.module : mot_manipulator = mot_manipulator(self.device_config)
+        self.module.set_module_param(self.module_config)
+        if not self.module.connect():
+            self.log.Critical('can not connect module')
+            return False
+        return True
     
+    def module_move(self,x,y,z,rx):
+        self.module.mo
+        return
+
+
+
     def get_param_value(self, config_path, config_filename):
         if not os.path.exists(config_path+config_filename):
+            self.log.Error("get_param_value : does not exist config file")
+            return False
+        try:
+            with open(config_path+config_filename) as open_file:
+                config_yaml = yaml.load(open_file, Loader= yaml.FullLoader)
+                self.device_config.port = config_yaml['Device']['Port']
+                self.device_config.baudrate = config_yaml['Device']['Baudrate']
+                self.device_config.protocol_version = config_yaml['Device']['ProtocolVersion']
+                number_of_joint = config_yaml['Joint']['Number']
+                link_chain_buf=[]
+                for i in range(number_of_joint):
+                    joint_yaml = config_yaml['Joint']['Joint_%02d'%i]
+                    theta = joint_yaml['theta']
+                    d = joint_yaml['d']
+                    alpha = joint_yaml['alpha']
+                    a = joint_yaml['a']
+                    beta = joint_yaml['beta']
+                    b = joint_yaml['b']
+                    joint_param = joint_move_param()
+                    index = joint_yaml['index']
+                    joint_param.max_rpm = joint_yaml['max_rpm']
+                    joint_param.max_acc = joint_yaml['max_acc']
+                    joint_param.max_LoadmA = joint_yaml['max_LoadmA']
+                    joint_param.min_ang = joint_yaml['min_ang']
+                    joint_param.max_ang = joint_yaml['max_ang']
+                    joint_param.inposition = joint_yaml['inposition']
+                    self.module_config[index] = joint_param
+                    self.index_list[index]
+                    link_chain_buf.append([theta,d,a,alpha,beta,b])
+
+                self.LinkChain = np.array(link_chain_buf)
+            return True
+                
+        except:
+            self.log.Error("get_param_value : does not exist config fil")
             return False
         
     def get_fk(self, q):
