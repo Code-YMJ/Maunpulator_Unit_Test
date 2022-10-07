@@ -27,11 +27,24 @@ class jeus_maunpulator():
             return False
         return True
     
-    def module_move(self,x,y,z,rx):
-        self.module.mo
+    def move_point(self,x,y,z,rx,ry,rz):
         return
 
 
+    def move_joint(self, joint_num : int , angle : int) -> bool:
+        if not self.module.move_one_joint(self.index_list[joint_num], angle):
+            self.log.Error('Move Fail Joint %d %d', self.index_list[joint_num], angle)
+            return False
+        return True
+        
+    def move_joint_all(self, joint_num : list[int] , angles : list[int]) -> bool:
+        idx_list = list()
+        for i in joint_num:
+            idx_list.append(i)
+        if not self.module.move_multi_joint(idx_list, angles):
+            self.log.Error('Move Fail Joints')
+            return False
+        return True
 
     def get_param_value(self, config_path, config_filename):
         if not os.path.exists(config_path+config_filename):
@@ -209,4 +222,7 @@ class jeus_maunpulator():
         return np.array([q1, q2, q3, q4])
 
 
-    # def Move_Point(x,y,z,rx=0):
+
+a = jeus_maunpulator()
+if not a.get_param_value():
+    exit(1)
