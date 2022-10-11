@@ -304,6 +304,12 @@
         <height>31</height>
        </rect>
       </property>
+      <property name="documentTitle">
+       <string/>
+      </property>
+      <property name="plainText">
+       <string notr="true">0</string>
+      </property>
      </widget>
      <widget class="QPlainTextEdit" name="tbTargetPosJoint4">
       <property name="geometry">
@@ -313,6 +319,9 @@
         <width>140</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="plainText">
+       <string notr="true">0</string>
       </property>
      </widget>
      <widget class="QLabel" name="lbTargetPosJoint3">
@@ -340,6 +349,9 @@
         <height>31</height>
        </rect>
       </property>
+      <property name="plainText">
+       <string notr="true">0</string>
+      </property>
      </widget>
      <widget class="QPlainTextEdit" name="tbTargetPosJoint2">
       <property name="geometry">
@@ -349,6 +361,9 @@
         <width>140</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="plainText">
+       <string notr="true">0</string>
       </property>
      </widget>
      <widget class="QPushButton" name="btnMoveJoint1">
@@ -417,7 +432,7 @@
     <property name="title">
      <string>Sequence Box</string>
     </property>
-    <widget class="QPushButton" name="btnSeq1">
+    <widget class="QPushButton" name="btnSeq_Push">
      <property name="geometry">
       <rect>
        <x>30</x>
@@ -427,10 +442,10 @@
       </rect>
      </property>
      <property name="text">
-      <string>MovetoTarget</string>
+      <string>Push Button</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="btnSeq2">
+    <widget class="QPushButton" name="btnSeq_Init">
      <property name="geometry">
       <rect>
        <x>180</x>
@@ -440,10 +455,10 @@
       </rect>
      </property>
      <property name="text">
-      <string>Sequence 2</string>
+      <string>Back to Init</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="btnSeq2_2">
+    <widget class="QPushButton" name="btnSeq_All">
      <property name="geometry">
       <rect>
        <x>330</x>
@@ -453,7 +468,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>seq3</string>
+      <string>All Sequence</string>
      </property>
     </widget>
    </widget>
@@ -462,14 +477,14 @@
      <rect>
       <x>360</x>
       <y>110</y>
-      <width>641</width>
+      <width>701</width>
       <height>161</height>
      </rect>
     </property>
     <property name="title">
      <string>Inital Position</string>
     </property>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint2_3">
+    <widget class="QPlainTextEdit" name="tbInitPos_Z">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -495,7 +510,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint1_3">
+    <widget class="QPlainTextEdit" name="tbInitPos_X">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -530,7 +545,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint2_4">
+    <widget class="QPlainTextEdit" name="tbInitPos_Rx">
      <property name="geometry">
       <rect>
        <x>290</x>
@@ -556,7 +571,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint1_4">
+    <widget class="QPlainTextEdit" name="tbInitPos_Y">
      <property name="geometry">
       <rect>
        <x>290</x>
@@ -607,7 +622,7 @@
     <widget class="QPushButton" name="btnSaveInitPos">
      <property name="geometry">
       <rect>
-       <x>550</x>
+       <x>620</x>
        <y>30</y>
        <width>70</width>
        <height>110</height>
@@ -623,7 +638,7 @@
      <rect>
       <x>360</x>
       <y>280</y>
-      <width>641</width>
+      <width>701</width>
       <height>161</height>
      </rect>
     </property>
@@ -646,7 +661,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint1_5">
+    <widget class="QPlainTextEdit" name="tbWaitPos_Y">
      <property name="geometry">
       <rect>
        <x>290</x>
@@ -706,7 +721,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint2_5">
+    <widget class="QPlainTextEdit" name="tbWaitPos_Z">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -716,7 +731,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint1_6">
+    <widget class="QPlainTextEdit" name="tbWaitPos_X">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -726,7 +741,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint2_6">
+    <widget class="QPlainTextEdit" name="tbWaitPos_Rx">
      <property name="geometry">
       <rect>
        <x>290</x>
@@ -768,7 +783,7 @@
     <widget class="QPushButton" name="btnSaveWaitPos">
      <property name="geometry">
       <rect>
-       <x>550</x>
+       <x>620</x>
        <y>30</y>
        <width>70</width>
        <height>110</height>
@@ -784,7 +799,7 @@
      <rect>
       <x>360</x>
       <y>450</y>
-      <width>641</width>
+      <width>701</width>
       <height>161</height>
      </rect>
     </property>
@@ -807,7 +822,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint1_7">
+    <widget class="QPlainTextEdit" name="tbTargetPos_Y">
      <property name="geometry">
       <rect>
        <x>290</x>
@@ -867,7 +882,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint2_7">
+    <widget class="QPlainTextEdit" name="tbTargetPos_Z">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -877,7 +892,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint1_8">
+    <widget class="QPlainTextEdit" name="tbTargetPos_X">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -887,7 +902,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="tbCurrentPosJoint2_8">
+    <widget class="QPlainTextEdit" name="tbTargetPos_Rx">
      <property name="geometry">
       <rect>
        <x>290</x>
@@ -913,7 +928,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPushButton" name="btnMoveTargetPos">
+    <widget class="QPushButton" name="btnMoveTargetPos_J">
      <property name="geometry">
       <rect>
        <x>440</x>
@@ -923,13 +938,13 @@
       </rect>
      </property>
      <property name="text">
-      <string>Move</string>
+      <string>J Move</string>
      </property>
     </widget>
     <widget class="QPushButton" name="btnSaveTargetPos">
      <property name="geometry">
       <rect>
-       <x>550</x>
+       <x>620</x>
        <y>30</y>
        <width>70</width>
        <height>110</height>
@@ -937,6 +952,19 @@
      </property>
      <property name="text">
       <string>Save</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnMoveTargetPos_L">
+     <property name="geometry">
+      <rect>
+       <x>530</x>
+       <y>30</y>
+       <width>80</width>
+       <height>110</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>L Move</string>
      </property>
     </widget>
    </widget>
@@ -1025,26 +1053,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>btnMoveInitPos</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>move_joint()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>856</x>
-     <y>184</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>821</x>
-     <y>45</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>btnMoveWaitPos</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>move_joints()</slot>
+   <slot>move_J()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>856</x>
@@ -1057,29 +1069,13 @@
    </hints>
   </connection>
   <connection>
-   <sender>btnMoveTargetPos</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>move_joints()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>854</x>
-     <y>518</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>724</x>
-     <y>81</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>btnSaveTargetPos</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>save()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>964</x>
+     <x>1034</x>
      <y>546</y>
     </hint>
     <hint type="destinationlabel">
@@ -1088,13 +1084,143 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btnSaveWaitPos</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1030</x>
+     <y>374</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1026</x>
+     <y>359</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnSaveInitPos</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1008</x>
+     <y>190</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1039</x>
+     <y>187</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnMoveTargetPos_L</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>move_L()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>932</x>
+     <y>555</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1040</x>
+     <y>657</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnMoveTargetPos_J</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>move_J()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>849</x>
+     <y>504</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>703</x>
+     <y>73</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnMoveInitPos</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>move_J()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>821</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>958</x>
+     <y>84</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnSeq_Push</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>sequence_push()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>469</x>
+     <y>721</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>459</x>
+     <y>840</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnSeq_Init</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>sequence_init()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>618</x>
+     <y>725</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>617</x>
+     <y>837</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnSeq_All</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>sequence_all()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>745</x>
+     <y>721</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>746</x>
+     <y>825</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>connect_device()</slot>
   <slot>move_joint()</slot>
-  <slot>move_joints()</slot>
-  <slot>move_L()</slot>
   <slot>move_J()</slot>
+  <slot>move_L()</slot>
   <slot>save()</slot>
+  <slot>sequence_init()</slot>
+  <slot>sequence_push()</slot>
+  <slot>sequence_all()</slot>
  </slots>
 </ui>

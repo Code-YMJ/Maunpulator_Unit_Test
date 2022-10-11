@@ -24,7 +24,7 @@ setup(
     license='None',
     description='Jeus arm control python package',
     long_description=open('README.txt').read(),
-    url='https://github.com/ROBOTIS-GIT/DynamixelSDK',
+    url='https://github.com/Code-YMJ/Maunpulator_Unit_Test',
     author='Code.MJ',
     author_email='minjae8970@gmail.com',
     install_requires=['numpy', 'pyyaml']

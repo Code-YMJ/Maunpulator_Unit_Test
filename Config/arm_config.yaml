@@ -1,10 +1,10 @@
 Device:
-  Port: COM7
+  Port: COM5
   Baudrate: 1000000
   ProtocolVersion: 2.0
 Joint:
   Number: 4
-  Joint_01:
+  Joint_00:
     index: 11
     a: 0
     alpha: 90
@@ -20,8 +20,26 @@ Joint:
     max_LoadmA: 0.5
     min_ang: 10
     max_ang: 350
+    inposition: 0.01
+  Joint_01:
+    index: 12
+    a: 0
+    alpha: 90
+    b: 0
+    beta: 0
+    d: 0
+    theta: 0
+    p_gain: 0
+    i_gain: 0
+    d_gain: 0
+    max_rpm: 100
+    max_acc: 1
+    max_LoadmA: 0.5
+    min_ang: 10
+    max_ang: 350
+    inposition: 0.01
   Joint_02:
-    index: 11
+    index: 13
     a: 0
     alpha: 90
     b: 0
@@ -38,24 +56,7 @@ Joint:
     max_ang: 350
     inposition: 0.01
   Joint_03:
-    index: 11
-    a: 0
-    alpha: 90
-    b: 0
-    beta: 0
-    d: 0
-    theta: 0
-    p_gain: 0
-    i_gain: 0
-    d_gain: 0
-    max_rpm: 100
-    max_acc: 1
-    max_LoadmA: 0.5
-    min_ang: 10
-    max_ang: 350
-    inposition: 0.01
-  Joint_04:
-    index: 11
+    index: 14
     a: 0
     alpha: 90
     b: 0

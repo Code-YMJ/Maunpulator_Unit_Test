@@ -18,11 +18,15 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel,
     QMainWindow, QPlainTextEdit, QPushButton, QSizePolicy,
     QWidget)
+import os
+import sys
+import threading
+from jeus_armcontrol import *
+import yaml
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        if not MainWindow.objectName():
-            MainWindow.setObjectName(u"MainWindow")
+        MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1083, 894)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -104,9 +108,11 @@ class Ui_MainWindow(object):
         self.tbTargetPosJoint1 = QPlainTextEdit(self.gbCurrentPos_2)
         self.tbTargetPosJoint1.setObjectName(u"tbTargetPosJoint1")
         self.tbTargetPosJoint1.setGeometry(QRect(70, 30, 140, 31))
+        self.tbTargetPosJoint1.setPlainText(u"0")
         self.tbTargetPosJoint4 = QPlainTextEdit(self.gbCurrentPos_2)
         self.tbTargetPosJoint4.setObjectName(u"tbTargetPosJoint4")
         self.tbTargetPosJoint4.setGeometry(QRect(70, 180, 140, 31))
+        self.tbTargetPosJoint4.setPlainText(u"0")
         self.lbTargetPosJoint3 = QLabel(self.gbCurrentPos_2)
         self.lbTargetPosJoint3.setObjectName(u"lbTargetPosJoint3")
         self.lbTargetPosJoint3.setGeometry(QRect(10, 130, 51, 31))
@@ -114,9 +120,11 @@ class Ui_MainWindow(object):
         self.tbTargetPosJoint3 = QPlainTextEdit(self.gbCurrentPos_2)
         self.tbTargetPosJoint3.setObjectName(u"tbTargetPosJoint3")
         self.tbTargetPosJoint3.setGeometry(QRect(70, 130, 140, 31))
+        self.tbTargetPosJoint3.setPlainText(u"0")
         self.tbTargetPosJoint2 = QPlainTextEdit(self.gbCurrentPos_2)
         self.tbTargetPosJoint2.setObjectName(u"tbTargetPosJoint2")
         self.tbTargetPosJoint2.setGeometry(QRect(70, 80, 140, 31))
+        self.tbTargetPosJoint2.setPlainText(u"0")
         self.btnMoveJoint1 = QPushButton(self.gbCurrentPos_2)
         self.btnMoveJoint1.setObjectName(u"btnMoveJoint1")
         self.btnMoveJoint1.setGeometry(QRect(220, 20, 101, 41))
@@ -132,44 +140,44 @@ class Ui_MainWindow(object):
         self.gbSequence = QGroupBox(self.centralwidget)
         self.gbSequence.setObjectName(u"gbSequence")
         self.gbSequence.setGeometry(QRect(360, 620, 641, 161))
-        self.btnSeq1 = QPushButton(self.gbSequence)
-        self.btnSeq1.setObjectName(u"btnSeq1")
-        self.btnSeq1.setGeometry(QRect(30, 50, 141, 81))
-        self.btnSeq2 = QPushButton(self.gbSequence)
-        self.btnSeq2.setObjectName(u"btnSeq2")
-        self.btnSeq2.setGeometry(QRect(180, 50, 141, 81))
-        self.btnSeq2_2 = QPushButton(self.gbSequence)
-        self.btnSeq2_2.setObjectName(u"btnSeq2_2")
-        self.btnSeq2_2.setGeometry(QRect(330, 50, 141, 81))
+        self.btnSeq_Push = QPushButton(self.gbSequence)
+        self.btnSeq_Push.setObjectName(u"btnSeq_Push")
+        self.btnSeq_Push.setGeometry(QRect(30, 50, 141, 81))
+        self.btnSeq_Init = QPushButton(self.gbSequence)
+        self.btnSeq_Init.setObjectName(u"btnSeq_Init")
+        self.btnSeq_Init.setGeometry(QRect(180, 50, 141, 81))
+        self.btnSeq_All = QPushButton(self.gbSequence)
+        self.btnSeq_All.setObjectName(u"btnSeq_All")
+        self.btnSeq_All.setGeometry(QRect(330, 50, 141, 81))
         self.gbInitParam = QGroupBox(self.centralwidget)
         self.gbInitParam.setObjectName(u"gbInitParam")
-        self.gbInitParam.setGeometry(QRect(360, 110, 641, 161))
-        self.tbCurrentPosJoint2_3 = QPlainTextEdit(self.gbInitParam)
-        self.tbCurrentPosJoint2_3.setObjectName(u"tbCurrentPosJoint2_3")
-        self.tbCurrentPosJoint2_3.setGeometry(QRect(80, 100, 140, 31))
+        self.gbInitParam.setGeometry(QRect(360, 110, 701, 161))
+        self.tbInitPos_Z = QPlainTextEdit(self.gbInitParam)
+        self.tbInitPos_Z.setObjectName(u"tbInitPos_Z")
+        self.tbInitPos_Z.setGeometry(QRect(80, 100, 140, 31))
         self.lbInitPos_Z = QLabel(self.gbInitParam)
         self.lbInitPos_Z.setObjectName(u"lbInitPos_Z")
         self.lbInitPos_Z.setGeometry(QRect(20, 100, 51, 31))
         self.lbInitPos_Z.setAlignment(Qt.AlignCenter)
-        self.tbCurrentPosJoint1_3 = QPlainTextEdit(self.gbInitParam)
-        self.tbCurrentPosJoint1_3.setObjectName(u"tbCurrentPosJoint1_3")
-        self.tbCurrentPosJoint1_3.setGeometry(QRect(80, 40, 140, 31))
+        self.tbInitPos_X = QPlainTextEdit(self.gbInitParam)
+        self.tbInitPos_X.setObjectName(u"tbInitPos_X")
+        self.tbInitPos_X.setGeometry(QRect(80, 40, 140, 31))
         self.lbInitPos_X = QLabel(self.gbInitParam)
         self.lbInitPos_X.setObjectName(u"lbInitPos_X")
         self.lbInitPos_X.setGeometry(QRect(20, 40, 51, 31))
         self.lbInitPos_X.setFont(font)
         self.lbInitPos_X.setMouseTracking(False)
         self.lbInitPos_X.setAlignment(Qt.AlignCenter)
-        self.tbCurrentPosJoint2_4 = QPlainTextEdit(self.gbInitParam)
-        self.tbCurrentPosJoint2_4.setObjectName(u"tbCurrentPosJoint2_4")
-        self.tbCurrentPosJoint2_4.setGeometry(QRect(290, 100, 140, 31))
+        self.tbInitPos_Rx = QPlainTextEdit(self.gbInitParam)
+        self.tbInitPos_Rx.setObjectName(u"tbInitPos_Rx")
+        self.tbInitPos_Rx.setGeometry(QRect(290, 100, 140, 31))
         self.lbInitPos_Rx = QLabel(self.gbInitParam)
         self.lbInitPos_Rx.setObjectName(u"lbInitPos_Rx")
         self.lbInitPos_Rx.setGeometry(QRect(230, 100, 51, 31))
         self.lbInitPos_Rx.setAlignment(Qt.AlignCenter)
-        self.tbCurrentPosJoint1_4 = QPlainTextEdit(self.gbInitParam)
-        self.tbCurrentPosJoint1_4.setObjectName(u"tbCurrentPosJoint1_4")
-        self.tbCurrentPosJoint1_4.setGeometry(QRect(290, 40, 140, 31))
+        self.tbInitPos_Y = QPlainTextEdit(self.gbInitParam)
+        self.tbInitPos_Y.setObjectName(u"tbInitPos_Y")
+        self.tbInitPos_Y.setGeometry(QRect(290, 40, 140, 31))
         self.lbInitPos_Y = QLabel(self.gbInitParam)
         self.lbInitPos_Y.setObjectName(u"lbInitPos_Y")
         self.lbInitPos_Y.setGeometry(QRect(230, 40, 51, 31))
@@ -181,17 +189,17 @@ class Ui_MainWindow(object):
         self.btnMoveInitPos.setGeometry(QRect(440, 30, 80, 110))
         self.btnSaveInitPos = QPushButton(self.gbInitParam)
         self.btnSaveInitPos.setObjectName(u"btnSaveInitPos")
-        self.btnSaveInitPos.setGeometry(QRect(550, 30, 70, 110))
+        self.btnSaveInitPos.setGeometry(QRect(620, 30, 70, 110))
         self.gbWaitParam = QGroupBox(self.centralwidget)
         self.gbWaitParam.setObjectName(u"gbWaitParam")
-        self.gbWaitParam.setGeometry(QRect(360, 280, 641, 161))
+        self.gbWaitParam.setGeometry(QRect(360, 280, 701, 161))
         self.lbWaitPos_Z = QLabel(self.gbWaitParam)
         self.lbWaitPos_Z.setObjectName(u"lbWaitPos_Z")
         self.lbWaitPos_Z.setGeometry(QRect(20, 100, 51, 31))
         self.lbWaitPos_Z.setAlignment(Qt.AlignCenter)
-        self.tbCurrentPosJoint1_5 = QPlainTextEdit(self.gbWaitParam)
-        self.tbCurrentPosJoint1_5.setObjectName(u"tbCurrentPosJoint1_5")
-        self.tbCurrentPosJoint1_5.setGeometry(QRect(290, 40, 140, 31))
+        self.tbWaitPos_Y = QPlainTextEdit(self.gbWaitParam)
+        self.tbWaitPos_Y.setObjectName(u"tbWaitPos_Y")
+        self.tbWaitPos_Y.setGeometry(QRect(290, 40, 140, 31))
         self.lbWaitPos_X = QLabel(self.gbWaitParam)
         self.lbWaitPos_X.setObjectName(u"lbWaitPos_X")
         self.lbWaitPos_X.setGeometry(QRect(20, 40, 51, 31))
@@ -204,15 +212,15 @@ class Ui_MainWindow(object):
         self.lbWaitPos_Y.setFont(font)
         self.lbWaitPos_Y.setMouseTracking(False)
         self.lbWaitPos_Y.setAlignment(Qt.AlignCenter)
-        self.tbCurrentPosJoint2_5 = QPlainTextEdit(self.gbWaitParam)
-        self.tbCurrentPosJoint2_5.setObjectName(u"tbCurrentPosJoint2_5")
-        self.tbCurrentPosJoint2_5.setGeometry(QRect(80, 100, 140, 31))
-        self.tbCurrentPosJoint1_6 = QPlainTextEdit(self.gbWaitParam)
-        self.tbCurrentPosJoint1_6.setObjectName(u"tbCurrentPosJoint1_6")
-        self.tbCurrentPosJoint1_6.setGeometry(QRect(80, 40, 140, 31))
-        self.tbCurrentPosJoint2_6 = QPlainTextEdit(self.gbWaitParam)
-        self.tbCurrentPosJoint2_6.setObjectName(u"tbCurrentPosJoint2_6")
-        self.tbCurrentPosJoint2_6.setGeometry(QRect(290, 100, 140, 31))
+        self.tbWaitPos_Z = QPlainTextEdit(self.gbWaitParam)
+        self.tbWaitPos_Z.setObjectName(u"tbWaitPos_Z")
+        self.tbWaitPos_Z.setGeometry(QRect(80, 100, 140, 31))
+        self.tbWaitPos_X = QPlainTextEdit(self.gbWaitParam)
+        self.tbWaitPos_X.setObjectName(u"tbWaitPos_X")
+        self.tbWaitPos_X.setGeometry(QRect(80, 40, 140, 31))
+        self.tbWaitPos_Rx = QPlainTextEdit(self.gbWaitParam)
+        self.tbWaitPos_Rx.setObjectName(u"tbWaitPos_Rx")
+        self.tbWaitPos_Rx.setGeometry(QRect(290, 100, 140, 31))
         self.lbWaitPos_Rx = QLabel(self.gbWaitParam)
         self.lbWaitPos_Rx.setObjectName(u"lbWaitPos_Rx")
         self.lbWaitPos_Rx.setGeometry(QRect(230, 100, 51, 31))
@@ -222,17 +230,17 @@ class Ui_MainWindow(object):
         self.btnMoveWaitPos.setGeometry(QRect(440, 30, 80, 110))
         self.btnSaveWaitPos = QPushButton(self.gbWaitParam)
         self.btnSaveWaitPos.setObjectName(u"btnSaveWaitPos")
-        self.btnSaveWaitPos.setGeometry(QRect(550, 30, 70, 110))
+        self.btnSaveWaitPos.setGeometry(QRect(620, 30, 70, 110))
         self.gbTargetParam = QGroupBox(self.centralwidget)
         self.gbTargetParam.setObjectName(u"gbTargetParam")
-        self.gbTargetParam.setGeometry(QRect(360, 450, 641, 161))
+        self.gbTargetParam.setGeometry(QRect(360, 450, 701, 161))
         self.lbTargetPos_Z = QLabel(self.gbTargetParam)
         self.lbTargetPos_Z.setObjectName(u"lbTargetPos_Z")
         self.lbTargetPos_Z.setGeometry(QRect(20, 100, 51, 31))
         self.lbTargetPos_Z.setAlignment(Qt.AlignCenter)
-        self.tbCurrentPosJoint1_7 = QPlainTextEdit(self.gbTargetParam)
-        self.tbCurrentPosJoint1_7.setObjectName(u"tbCurrentPosJoint1_7")
-        self.tbCurrentPosJoint1_7.setGeometry(QRect(290, 40, 140, 31))
+        self.tbTargetPos_Y = QPlainTextEdit(self.gbTargetParam)
+        self.tbTargetPos_Y.setObjectName(u"tbTargetPos_Y")
+        self.tbTargetPos_Y.setGeometry(QRect(290, 40, 140, 31))
         self.lbTargetPos_X = QLabel(self.gbTargetParam)
         self.lbTargetPos_X.setObjectName(u"lbTargetPos_X")
         self.lbTargetPos_X.setGeometry(QRect(20, 40, 51, 31))
@@ -245,25 +253,28 @@ class Ui_MainWindow(object):
         self.lbTargetPos_Y.setFont(font)
         self.lbTargetPos_Y.setMouseTracking(False)
         self.lbTargetPos_Y.setAlignment(Qt.AlignCenter)
-        self.tbCurrentPosJoint2_7 = QPlainTextEdit(self.gbTargetParam)
-        self.tbCurrentPosJoint2_7.setObjectName(u"tbCurrentPosJoint2_7")
-        self.tbCurrentPosJoint2_7.setGeometry(QRect(80, 100, 140, 31))
-        self.tbCurrentPosJoint1_8 = QPlainTextEdit(self.gbTargetParam)
-        self.tbCurrentPosJoint1_8.setObjectName(u"tbCurrentPosJoint1_8")
-        self.tbCurrentPosJoint1_8.setGeometry(QRect(80, 40, 140, 31))
-        self.tbCurrentPosJoint2_8 = QPlainTextEdit(self.gbTargetParam)
-        self.tbCurrentPosJoint2_8.setObjectName(u"tbCurrentPosJoint2_8")
-        self.tbCurrentPosJoint2_8.setGeometry(QRect(290, 100, 140, 31))
+        self.tbTargetPos_Z = QPlainTextEdit(self.gbTargetParam)
+        self.tbTargetPos_Z.setObjectName(u"tbTargetPos_Z")
+        self.tbTargetPos_Z.setGeometry(QRect(80, 100, 140, 31))
+        self.tbTargetPos_X = QPlainTextEdit(self.gbTargetParam)
+        self.tbTargetPos_X.setObjectName(u"tbTargetPos_X")
+        self.tbTargetPos_X.setGeometry(QRect(80, 40, 140, 31))
+        self.tbTargetPos_Rx = QPlainTextEdit(self.gbTargetParam)
+        self.tbTargetPos_Rx.setObjectName(u"tbTargetPos_Rx")
+        self.tbTargetPos_Rx.setGeometry(QRect(290, 100, 140, 31))
         self.lbTargetPos_Rx = QLabel(self.gbTargetParam)
         self.lbTargetPos_Rx.setObjectName(u"lbTargetPos_Rx")
         self.lbTargetPos_Rx.setGeometry(QRect(220, 100, 71, 31))
         self.lbTargetPos_Rx.setAlignment(Qt.AlignCenter)
-        self.btnMoveTargetPos = QPushButton(self.gbTargetParam)
-        self.btnMoveTargetPos.setObjectName(u"btnMoveTargetPos")
-        self.btnMoveTargetPos.setGeometry(QRect(440, 30, 80, 110))
+        self.btnMoveTargetPos_J = QPushButton(self.gbTargetParam)
+        self.btnMoveTargetPos_J.setObjectName(u"btnMoveTargetPos_J")
+        self.btnMoveTargetPos_J.setGeometry(QRect(440, 30, 80, 110))
         self.btnSaveTargetPos = QPushButton(self.gbTargetParam)
         self.btnSaveTargetPos.setObjectName(u"btnSaveTargetPos")
-        self.btnSaveTargetPos.setGeometry(QRect(550, 30, 70, 110))
+        self.btnSaveTargetPos.setGeometry(QRect(620, 30, 70, 110))
+        self.btnMoveTargetPos_L = QPushButton(self.gbTargetParam)
+        self.btnMoveTargetPos_L.setObjectName(u"btnMoveTargetPos_L")
+        self.btnMoveTargetPos_L.setGeometry(QRect(530, 30, 80, 110))
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -272,10 +283,16 @@ class Ui_MainWindow(object):
         self.btnMoveJoint2.clicked.connect(MainWindow.move_joint)
         self.btnMoveJoint3.clicked.connect(MainWindow.move_joint)
         self.btnMoveJoint4.clicked.connect(MainWindow.move_joint)
-        self.btnMoveInitPos.clicked.connect(MainWindow.move_joint)
-        self.btnMoveWaitPos.clicked.connect(MainWindow.move_joints)
-        self.btnMoveTargetPos.clicked.connect(MainWindow.move_joints)
+        self.btnMoveWaitPos.clicked.connect(MainWindow.move_J)
         self.btnSaveTargetPos.clicked.connect(MainWindow.save)
+        self.btnSaveWaitPos.clicked.connect(MainWindow.save)
+        self.btnSaveInitPos.clicked.connect(MainWindow.save)
+        self.btnMoveTargetPos_L.clicked.connect(MainWindow.move_L)
+        self.btnMoveTargetPos_J.clicked.connect(MainWindow.move_J)
+        self.btnMoveInitPos.clicked.connect(MainWindow.move_J)
+        self.btnSeq_Push.clicked.connect(MainWindow.sequence_push)
+        self.btnSeq_Init.clicked.connect(MainWindow.sequence_init)
+        self.btnSeq_All.clicked.connect(MainWindow.sequence_all)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -295,15 +312,16 @@ class Ui_MainWindow(object):
         self.lbTargetPosJoint4.setText(QCoreApplication.translate("MainWindow", u"Joint4", None))
         self.lbTargetPosJoint1.setText(QCoreApplication.translate("MainWindow", u"Joint1", None))
         self.lbTargetPosJoint2.setText(QCoreApplication.translate("MainWindow", u"Joint2", None))
+        self.tbTargetPosJoint1.setDocumentTitle("")
         self.lbTargetPosJoint3.setText(QCoreApplication.translate("MainWindow", u"Joint3", None))
         self.btnMoveJoint1.setText(QCoreApplication.translate("MainWindow", u"Move", None))
         self.btnMoveJoint2.setText(QCoreApplication.translate("MainWindow", u"Move", None))
         self.btnMoveJoint3.setText(QCoreApplication.translate("MainWindow", u"Move", None))
         self.btnMoveJoint4.setText(QCoreApplication.translate("MainWindow", u"Move", None))
         self.gbSequence.setTitle(QCoreApplication.translate("MainWindow", u"Sequence Box", None))
-        self.btnSeq1.setText(QCoreApplication.translate("MainWindow", u"MovetoTarget", None))
-        self.btnSeq2.setText(QCoreApplication.translate("MainWindow", u"Sequence 2", None))
-        self.btnSeq2_2.setText(QCoreApplication.translate("MainWindow", u"seq3", None))
+        self.btnSeq_Push.setText(QCoreApplication.translate("MainWindow", u"Push Button", None))
+        self.btnSeq_Init.setText(QCoreApplication.translate("MainWindow", u"Back to Init", None))
+        self.btnSeq_All.setText(QCoreApplication.translate("MainWindow", u"All Sequence", None))
         self.gbInitParam.setTitle(QCoreApplication.translate("MainWindow", u"Inital Position", None))
         self.lbInitPos_Z.setText(QCoreApplication.translate("MainWindow", u"Init Z", None))
         self.lbInitPos_X.setText(QCoreApplication.translate("MainWindow", u"Init X", None))
@@ -323,7 +341,50 @@ class Ui_MainWindow(object):
         self.lbTargetPos_X.setText(QCoreApplication.translate("MainWindow", u"Target X", None))
         self.lbTargetPos_Y.setText(QCoreApplication.translate("MainWindow", u"Target Y", None))
         self.lbTargetPos_Rx.setText(QCoreApplication.translate("MainWindow", u"Target Rx", None))
-        self.btnMoveTargetPos.setText(QCoreApplication.translate("MainWindow", u"Move", None))
+        self.btnMoveTargetPos_J.setText(QCoreApplication.translate("MainWindow", u"J Move", None))
         self.btnSaveTargetPos.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+        self.btnMoveTargetPos_L.setText(QCoreApplication.translate("MainWindow", u"L Move", None))
     # retranslateUi
+    def setconfig(self):
+        path = os.getcwd()+'\\Config'+'\\model_config'.yaml
+        with open(path) as fileopen:
+            model_config = yaml.load(fileopen, Loader=yaml.FullLoader)
 
+        pass
+
+    def set_config_posi_text(self):
+        
+        pass
+    def get_current_pos(self):
+        if hasattr(self, 'manupulator') and self.IsConnect:
+            positions = self.manupulator.get_current_joints_pos()
+            key_hard = sorted(positions.keys())
+            
+                
+            
+    
+    def connect_device(self):
+        self.manupulator = jeus_maunpulator()
+        self.manupulator.get_param_value(os.path.join(os.getcwd(),'Config'),'arm_config.yaml')
+        if self.manupulator.generate_module():
+            self.timer = threading.Timer(0.01, self.get_current_pos)
+            self.timer.start()
+            self.IsConnect = True
+            
+
+
+    def move_joint(self):
+        pass
+    def move_J(self):
+        pass
+    def move_L(self):
+        pass
+    def sequence_push(self):
+        pass
+    def sequence_init(self):
+        pass
+    def sequence_all(self):
+        pass
+
+    def save(self):
+        pass

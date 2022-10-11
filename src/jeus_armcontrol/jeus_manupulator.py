@@ -13,7 +13,7 @@ class jeus_maunpulator():
                  grav = DEFAULT_GRAV_ACC_VEC):
         self.module : mot_manipulator
         self.device_config = device_param()
-        self.index_list = list()
+        self.index_list = []
         self.module_config = dict()  #ket :joint index //  value : joint parameter
         # DEFAULT LINK CHAIN =========================================== theta, d, a, alpha, beta, b 
         # self.LinkChain = np.array([[       0,    76.5,     0,  -np.pi/2, 0,     0],
@@ -30,6 +30,7 @@ class jeus_maunpulator():
         if not self.module.connect():
             self.log.Critical('can not connect module')
             return False
+        
         return True
     
     def move_point(self, move_mode:MoveMode, x, y, z, rx, ry=-1, rz=-1):
@@ -40,6 +41,25 @@ class jeus_maunpulator():
         if move_mode == MoveMode.J_Move:
             path = self.get_J_path
         return
+    def torque_on(self,  joint_num : int = -1) -> bool:
+        if joint_num == -1:
+            for k in self.index_list:
+                rtn = self.module.torque_onoff(k,True)
+                self.log.Info(f"{k} is Torque On [result] : {rtn}")
+        else:
+            rtn = self.module.torque_onoff(self.index_list[joint_num],True)
+            self.log.Info(f"{self.index_list[joint_num]} is Torque On [result] : {rtn}")
+        return rtn
+
+    def torque_off(self,  joint_num : int = -1) -> bool:
+        if joint_num == -1:
+            for k in self.index_list:
+                rtn = self.module.torque_onoff(k,False)
+                self.log.Info(f"{k} is Torque Off [result] : {rtn}")
+        else:
+            rtn = self.module.torque_onoff(self.index_list[joint_num],False)
+            self.log.Info(f"{self.index_list[joint_num]} is Torque Off [result] : {rtn}")
+        return rtn
 
     def get_J_path(self, qs, qd, t0 = 0.0, t1 = 1.0, dt = 0.001, vel = 100, res = None ):
         Ux = PathPlanner(qs, qd, t0, t1)
@@ -72,12 +92,12 @@ class jeus_maunpulator():
             if t > t1:
                 break
 
-
+    
 
 
     def move_joint(self, joint_num : int , angle : int) -> bool:
         if not self.module.move_one_joint(self.index_list[joint_num], angle):
-            self.log.Error('Move Fail Joint %d %d', self.index_list[joint_num], angle)
+            self.log.Error(('Move Fail Joint %d %d', self.index_list[joint_num], angle))
             return False
         return True
 
@@ -91,19 +111,26 @@ class jeus_maunpulator():
         return True
     
     def get_param_value(self, config_path, config_filename):
-        if not os.path.exists(config_path+config_filename):
+        if not os.path.exists(os.path.join(config_path, config_filename)):
             self.log.Error("get_param_value : does not exist config file")
             return False
         try:
-            with open(config_path+config_filename) as open_file:
+            with open(os.path.join(config_path,config_filename)) as open_file:
                 config_yaml = yaml.load(open_file, Loader= yaml.FullLoader)
+
                 self.device_config.port = config_yaml['Device']['Port']
+
                 self.device_config.baudrate = config_yaml['Device']['Baudrate']
+
                 self.device_config.protocol_version = config_yaml['Device']['ProtocolVersion']
+
                 number_of_joint = config_yaml['Joint']['Number']
+                self.log.Info(number_of_joint)
                 link_chain_buf=[]
                 for i in range(number_of_joint):
-                    joint_yaml = config_yaml['Joint']['Joint_%02d'%i]
+                    s = 'Joint_%02d'%i
+                    self.log.Info(s)
+                    joint_yaml = config_yaml['Joint'][s]
                     theta = joint_yaml['theta']
                     d = joint_yaml['d']
                     alpha = joint_yaml['alpha']
@@ -111,15 +138,23 @@ class jeus_maunpulator():
                     beta = joint_yaml['beta']
                     b = joint_yaml['b']
                     joint_param = joint_move_param()
-                    index = joint_yaml['index']
+                    index : int = joint_yaml['index']
+
                     joint_param.max_rpm = joint_yaml['max_rpm']
+ 
                     joint_param.max_acc = joint_yaml['max_acc']
+
                     joint_param.max_LoadmA = joint_yaml['max_LoadmA']
+
                     joint_param.min_ang = joint_yaml['min_ang']
+
                     joint_param.max_ang = joint_yaml['max_ang']
+
                     joint_param.inposition = joint_yaml['inposition']
+
                     self.module_config[index] = joint_param
-                    self.index_list[index]
+
+                    self.index_list.append(index)
                     link_chain_buf.append([theta,d,a,alpha,beta,b])
 
                 self.LinkChain = np.array(link_chain_buf)
@@ -265,8 +300,15 @@ class jeus_maunpulator():
         
         return np.array([q1, q2, q3, q4])
 
+    def get_current_joints_pos(self):
+        positions = self.module.get_multi_position(self.index_list)
+        return positions
 
 
-a = jeus_maunpulator()
-if not a.get_param_value():
-    exit(1)
+    def get_current_joint_pos(self):
+        positions = dict()
+        self.log.Info(self.index_list)
+        for i in self.index_list:
+            positions[i]=self.module.get_current_position(i)
+        return positions
+

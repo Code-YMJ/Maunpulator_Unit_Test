@@ -128,9 +128,11 @@ class mot_manipulator:
         self.packet_handler = PacketHandler(self.device_param.protocol_version)
         # Initialize GroupSyncWrite instance
         self.groupSyncWrite = GroupSyncWrite(self.port_handler, self.packet_handler, ctl_table['ADDR_GOAL_POSI']['addr'], ctl_table['ADDR_GOAL_POSI']['size'])
+        self.log.Info("Succeeded to set groupSyncWrite")
 
         # Initialize GroupSyncRead instace for Present Position
         self.groupSyncRead = GroupSyncRead(self.port_handler, self.packet_handler, ctl_table['ADDR_PRES_POSI']['addr'],  ctl_table['ADDR_PRES_POSI']['size'])
+        self.log.Info("Succeeded to set groupSyncRead")
         # Open port
         if not self.port_handler.openPort():
             self.log.Error("Failed to open the port")
@@ -280,10 +282,13 @@ class mot_manipulator:
         dxl_comm_result, dxl_error = self.packet_handler.write1ByteTxRx(self.port_handler, idx, addr, torque)
         if dxl_comm_result != COMM_SUCCESS:
             self.log.Error("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))
+            return False
         elif dxl_error != 0:
             self.log.Error("%s" % self.packet_handler.getRxPacketError(dxl_error))
+            return False
         else:
-            self.log.Error("id:{0}, torque {1}".format(idx, IsOn))
+            self.log.Info("id:{0}, torque {1}".format(idx, IsOn))
+            return True
 
     def move_one_joint(self, idx : int, angle : int, vel=20, monitor_on = True) -> bool:
         addr_goal_posi = ctl_table['ADDR_GOAL_POSI']['addr']
@@ -338,6 +343,10 @@ class mot_manipulator:
 
         if monitor_on:
             while True:
+                dxl_comm_result = self.groupSyncRead.txRxPacket()
+                if dxl_comm_result != COMM_SUCCESS:
+                    print("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))
+
                 for i in range(n):
                     dxl_getdata_result = self.groupSyncRead.isAvailable(idx[i], addr_cur_posi, len_cur_posi)
                     if dxl_getdata_result != True:
@@ -357,6 +366,10 @@ class mot_manipulator:
         len_cur_posi = ctl_table['ADDR_PRES_POSI']['size']
         cur_pos = dict()
         n = len(idx)
+        dxl_comm_result = self.groupSyncRead.txRxPacket()
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))
+
         for i in range(n):       
             dxl_addparam_result = self.groupSyncRead.addParam(idx[i])
             if dxl_addparam_result != True:

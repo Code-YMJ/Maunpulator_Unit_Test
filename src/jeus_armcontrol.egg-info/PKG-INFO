@@ -2,7 +2,7 @@ Metadata-Version: 2.1
 Name: jeus-armcontrol
 Version: 0.0.0
 Summary: Jeus arm control python package
-Home-page: https://github.com/ROBOTIS-GIT/DynamixelSDK
+Home-page: https://github.com/Code-YMJ/Maunpulator_Unit_Test
 Author: Code.MJ
 Author-email: minjae8970@gmail.com
 License: None
@@ -10,4 +10,7 @@ Platform: UNKNOWN
 License-File: LICENSE.txt
 
 Unit Test for 4 axises manupulator 
+
+
+pyuic5 -x .\jr_main_form.ui -o jr_main_form.py   # make ui .py
 
