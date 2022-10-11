@@ -1,7 +1,12 @@
+import enum
 from .jeus_kinetictool import *
 from .jeus_dynamixel import *
 from .jeus_log import *
 import yaml
+class MoveMode(enum.Enum):
+    J_Move = 0
+    L_Move = 0
+
 class jeus_maunpulator():
     
     def __init__(self,
@@ -27,8 +32,47 @@ class jeus_maunpulator():
             return False
         return True
     
-    def move_point(self,x,y,z,rx,ry,rz):
+    def move_point(self, move_mode:MoveMode, x, y, z, rx, ry=-1, rz=-1):
+        # todo - 
+        joint_angle_current =np.array(self.module.get_multi_position(self.index_list))
+        joint_angle_target : np.ndarray
+        path : list
+        if move_mode == MoveMode.J_Move:
+            path = self.get_J_path
         return
+
+    def get_J_path(self, qs, qd, t0 = 0.0, t1 = 1.0, dt = 0.001, vel = 100, res = None ):
+        Ux = PathPlanner(qs, qd, t0, t1)
+        t = 0
+        
+        Q = []
+        q_pre = deepcopy(qs) 
+        
+        Q.append(qs)
+        
+        dof = 4
+
+        while(1):
+            t += dt
+            
+            # Get Cartesian Reference =================================================
+            q_tar = np.zeros(dof); qd_tar = np.zeros(dof); qdd_tar = np.zeros(dof);
+            for i in range(dof):
+                val, val_d, val_dd = get_state_traj(t, t0, Ux[i])
+                q_tar[i] = val; qd_tar[i] = val_d; qdd_tar[i] = val_dd
+            
+            q_cur = q_tar
+
+            # Append Data ------------------------------------------------------------
+            Q.append(q_cur)
+
+            # recursive --------------------------------
+            q_pre = deepcopy(q_cur)
+
+            if t > t1:
+                break
+
+
 
 
     def move_joint(self, joint_num : int , angle : int) -> bool:
@@ -36,7 +80,7 @@ class jeus_maunpulator():
             self.log.Error('Move Fail Joint %d %d', self.index_list[joint_num], angle)
             return False
         return True
-        
+
     def move_joint_all(self, joint_num : list[int] , angles : list[int]) -> bool:
         idx_list = list()
         for i in joint_num:
@@ -45,7 +89,7 @@ class jeus_maunpulator():
             self.log.Error('Move Fail Joints')
             return False
         return True
-
+    
     def get_param_value(self, config_path, config_filename):
         if not os.path.exists(config_path+config_filename):
             self.log.Error("get_param_value : does not exist config file")

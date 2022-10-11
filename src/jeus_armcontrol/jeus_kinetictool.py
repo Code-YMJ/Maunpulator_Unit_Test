@@ -137,3 +137,84 @@ def get_state_traj(t:float, t0:float, u:Poly5Coeff):
     th_dd = 2*a2 + 6*a3*T2 + 12*a4*T2 + 20*a5*T3
     
     return th, th_d, th_dd
+
+def trotx(ang: float, unit='rad'):
+    if unit == 'deg':
+        ang = np.deg2rad(ang)
+
+    mat = np.eye(4)
+    mat[0:3, 0:3] = rotx(ang, unit)
+    return mat
+
+def troty(angle: float, unit='rad'):
+    if unit == 'deg':
+        angle = np.deg2rad(angle)
+
+    mat = np.eye(4)
+    mat[0:3, 0:3] = roty(angle, unit)
+    return mat
+
+def trotz(angle: float, unit='rad'):
+    if unit == 'deg':
+        angle = np.deg2rad(angle)
+
+    mat = np.eye(4)
+    mat[0:3, 0:3] = rotz(angle, unit)
+    return mat
+
+def rotx(ang: float, unit='rad'):
+    if unit == 'deg':
+        ang = np.deg2rad(ang)
+
+    return np.array([[1,        0,         0],
+                     [0, cos(ang), -sin(ang)],
+                     [0, sin(ang),  cos(ang)]])
+
+def roty(ang: float, unit='rad'):
+    if unit == 'deg':
+        ang = np.deg2rad(ang)
+
+    return np.array([[cos(ang),  0,  sin(ang)],
+                     [0,  1,         0],
+                     [-sin(ang),  0,  cos(ang)]])
+
+def rotz(ang: float, unit='rad'):
+    if unit == 'deg':
+        ang = np.deg2rad(ang)
+
+    return np.array([[cos(ang), -sin(ang),  0],
+                     [sin(ang),  cos(ang),  0],
+                     [0,         0,  1]])
+def eulXYZ2r(eul):
+    """ convert a 3x1 euler vector into 3x3 rotation matrix
+    """
+    rx = rotx(eul[0])
+    ry = roty(eul[1])
+    rz = rotz(eul[2])
+
+    return rx @ ry @ rz
+
+def eulXYZ2tr(eul):
+
+    rx = trotx(eul[0])
+    ry = troty(eul[1])
+    rz = trotz(eul[2])
+
+    return rx @ ry @ rz
+    
+def tr2pose(T):
+    p = np.zeros(6)
+    p[0:3] = T[0:3, 3]
+    p[3:] = tr2eulXYZ(T[0:3, 0:3]) 
+    
+    return p
+
+def pose2tr(vec):
+    eul = vec[3:]
+    pos = vec[0:3]
+
+    T = eulXYZ2tr(eul)
+    
+    T[0:3, 3] = pos
+
+    return T

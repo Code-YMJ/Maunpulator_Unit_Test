@@ -1,6 +1,6 @@
+import os
 from jeus_log import *
-
-log = jeus_log('C:\Project', 'test')
+log = jeus_log(os.getcwd(), 'test')
 log.Warning('Warning')
 log.Error('Error')
 log.Debug('Debug')

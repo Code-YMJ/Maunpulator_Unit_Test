@@ -7,7 +7,7 @@ class jeus_log:
         self.log.setLevel(logging.DEBUG)
         fommat_s = logging.Formatter(f'{log_name} '+'[%(levelname)s] (%(asctime)s) > %(message)s')
         fommat_f = logging.Formatter('[%(levelname)s] (%(asctime)s) > %(message)s')
-        file_handler = logging.FileHandler(f'{path}\\{log_name}.txt')
+        file_handler = logging.FileHandler(f'{path}\\{log_name}{str(datetime.date(datetime.now()))}.txt')
         stream_handler = logging.StreamHandler()
         file_handler.setFormatter(fommat_f)
         stream_handler.setFormatter(fommat_s)
