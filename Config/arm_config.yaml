@@ -7,14 +7,14 @@ Joint:
   Joint_00:
     index: 11
     a: 0
-    alpha: 90
+    alpha: -90
     b: 0
     beta: 0
-    d: 0
+    d: 76.5
     theta: 0
-    p_gain: 0
-    i_gain: 0
-    d_gain: 0
+    p_gain: 200
+    i_gain: 1
+    d_gain: 2000
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5
@@ -23,15 +23,15 @@ Joint:
     inposition: 0.01
   Joint_01:
     index: 12
-    a: 0
-    alpha: 90
-    b: 0
+    a: 530
+    alpha: 0
+    b: 24
     beta: 0
     d: 0
-    theta: 0
-    p_gain: 0
-    i_gain: 0
-    d_gain: 0
+    theta: -90
+    p_gain: 200
+    i_gain: 1
+    d_gain: 2000
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5
@@ -40,15 +40,15 @@ Joint:
     inposition: 0.01
   Joint_02:
     index: 13
-    a: 0
-    alpha: 90
-    b: 0
+    a: 474
+    alpha: 0
+    b: -24
     beta: 0
     d: 0
-    theta: 0
-    p_gain: 0
-    i_gain: 0
-    d_gain: 0
+    theta: 90
+    p_gain: 200
+    i_gain: 1
+    d_gain: 2000
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5
@@ -57,15 +57,15 @@ Joint:
     inposition: 0.01
   Joint_03:
     index: 14
-    a: 0
-    alpha: 90
+    a: 96
+    alpha: 0
     b: 0
     beta: 0
     d: 0
     theta: 0
-    p_gain: 0
-    i_gain: 0
-    d_gain: 0
+    p_gain: 200
+    i_gain: 1
+    d_gain: 2000
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5

@@ -1,6 +1,15 @@
 init_position:
-  x: 0
-  y: 0
-  z: 0
-  rx: 0
-
+  ry: 8.0
+  x: 0.0
+  y: 2.58333
+  z: 0.0
+target_position:
+  ry: 0.0
+  x: 0.0
+  y: 0.0
+  z: 0.0
+wait_position:
+  ry: 0.0
+  x: 0.0
+  y: 0.0
+  z: 0.0

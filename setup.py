@@ -27,6 +27,6 @@ setup(
     url='https://github.com/Code-YMJ/Maunpulator_Unit_Test',
     author='Code.MJ',
     author_email='minjae8970@gmail.com',
-    install_requires=['numpy', 'pyyaml']
+    install_requires=['numpy', 'pyyaml', 'PySide6']
 )
 

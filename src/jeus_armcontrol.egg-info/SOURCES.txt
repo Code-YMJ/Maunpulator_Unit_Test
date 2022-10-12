@@ -3,7 +3,7 @@ README.txt
 setup.py
 src/jeus_armcontrol/__init__.py
 src/jeus_armcontrol/jeus_dynamixel.py
-src/jeus_armcontrol/jeus_kinetictool.py
+src/jeus_armcontrol/jeus_kinematictool.py
 src/jeus_armcontrol/jeus_log.py
 src/jeus_armcontrol/jeus_manupulator.py
 src/jeus_armcontrol/test.py

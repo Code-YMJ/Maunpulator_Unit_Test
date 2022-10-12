@@ -27,6 +27,8 @@ RAD2DEG_POSE = np.array([1, 1, 1, RAD2DEG, RAD2DEG, RAD2DEG])
 DPS2RPM = 60/360
 RPM2DPS = 360/60
 
+
+
 METER2MM = 1000.0
 MM2METER = 0.001
 
@@ -218,3 +220,4 @@ def pose2tr(vec):
     T[0:3, 3] = pos
 
     return T
+

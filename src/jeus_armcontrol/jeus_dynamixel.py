@@ -215,7 +215,8 @@ class mot_manipulator:
     # Function: Read present position
     def get_current_position(self, idx):
         rv = self.readCtlTable(idx, 'ADDR_PRES_POSI')
-        return rv
+        # return rv/(POSI_360/360)
+        return self.float_to_safetyangle(rv)
 
     # Function: Read present milli ampere load
     def get_current_loadmA(self, idx):
@@ -251,18 +252,21 @@ class mot_manipulator:
         return [DXL_LOBYTE(DXL_LOWORD(val)), DXL_HIBYTE(DXL_LOWORD(val)), DXL_LOBYTE(DXL_HIWORD(val)), DXL_HIBYTE(DXL_HIWORD(val))]
     # Function: Write parameter
     def writeParam(self,idx, p_gain, i_gain, d_gain, f1_gain, f2_gain, prof_vel, prof_accel, debug_on):
+        rtn = True
         if(debug_on==True):
             self.log.Info("write PID gain param idx{0}".format(idx))
-        self.writeCtlTable(idx, 'ADDR_POSI_PGAIN', p_gain)
-        self.writeCtlTable(idx, 'ADDR_POSI_IGAIN', i_gain)
-        self.writeCtlTable(idx, 'ADDR_POSI_DGAIN', d_gain)
-        self.writeCtlTable(idx, 'ADDR_FWD_GAIN1', f1_gain)
-        self.writeCtlTable(idx, 'ADDR_FWD_GAIN2', f2_gain)
+        rtn &= self.writeCtlTable(idx, 'ADDR_POSI_PGAIN', p_gain)
+        rtn &= self.writeCtlTable(idx, 'ADDR_POSI_IGAIN', i_gain)
+        rtn &= self.writeCtlTable(idx, 'ADDR_POSI_DGAIN', d_gain)
+        rtn &= self.writeCtlTable(idx, 'ADDR_FWD_GAIN1', f1_gain)
+        rtn &= self.writeCtlTable(idx, 'ADDR_FWD_GAIN2', f2_gain)
         if(debug_on==True):
             self.log.Info("write profile param idx{0}".format(idx))
         # writeCtlTable(idx, 'ADDR_PROF_VEL', 32767) # operation is same to 0
-        self.writeCtlTable(idx, 'ADDR_PROF_VEL', prof_vel)
-        self.writeCtlTable(idx, 'ADDR_PROF_ACCEL', prof_accel)
+        rtn &= self.writeCtlTable(idx, 'ADDR_PROF_VEL', prof_vel)
+        rtn &= self.writeCtlTable(idx, 'ADDR_PROF_ACCEL', prof_accel)
+        return rtn
+        
 
     # Function: Write goal position
     def set_goal_position(self,idx, gp, debug_on):
@@ -290,28 +294,39 @@ class mot_manipulator:
             self.log.Info("id:{0}, torque {1}".format(idx, IsOn))
             return True
 
-    def move_one_joint(self, idx : int, angle : int, vel=20, monitor_on = True) -> bool:
+    def get_torque_status(self,idx) -> bool:
+        rv = self.readCtlTable(idx, 'ADDR_TQ_ENB')
+        if rv == TORQUE_ENABLE:
+            return True
+        else:
+            return False
+
+    def move_one_joint(self, idx : int, angle : int, vel=50, monitor_on = True) -> bool:
         addr_goal_posi = ctl_table['ADDR_GOAL_POSI']['addr']
         addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']
-        goalPosi = int(POSI_360*angle/360)
-        if not self.writeParam(idx, self.module_param[idx].p_gain, self.module_param[idx].i_gain, self.module_param[idx].d_gain, 0, 0, vel, 0, False):
+        # goalPosi = int(POSI_360*angle/360)
+        goalPosi = self.angle_to_float(angle)
+        self.log.Info(f'{idx},p gain {self.module_param[idx].p_gain}, i gain {self.module_param[idx].i_gain}, d gain {self.module_param[idx].d_gain}, f1 0, f2 0, vel {vel}, 1, False')
+        if not self.writeParam(idx, self.module_param[idx].p_gain, self.module_param[idx].i_gain, self.module_param[idx].d_gain, 0, 0, vel, 1, False):
             return False
         self.set_goal_position(idx, goalPosi, False)
-        if monitor_on:
-            while True:
-                cur_pos = self.get_current_position(idx)
-                cur_load = self.get_current_loadmA(idx)
-                cur_temp = self.get_current_temp(idx)
-                posi_diff = abs(goalPosi-cur_pos)
-                if self.module_param[idx].inposition >= posi_diff:
-                    break
+        # if monitor_on:
+        #     while True:
+        #         cur_pos = self.get_current_position(idx)
+        #         cur_load = self.get_current_loadmA(idx)
+        #         cur_temp = self.get_current_temp(idx)
+        #         posi_diff = abs(goalPosi-cur_pos)
+        #         if self.angle_to_float(self.module_param[idx].inposition) >= posi_diff:
+        #             break
+        #         time.sleep(0.005)
         return True
 
 
     def move_multi_joint(self, idx : list[int], angle :  list[int], vel= 20, monitor_on = True) -> bool:
         addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']
         len_cur_posi = ctl_table['ADDR_PRES_POSI']['size']
-        goalPosi = np.array(angle)*POSI_360/360 
+        # goalPosi = np.array(angle)*POSI_360/360 
+        goalPosi = self.angle_to_float(np.array(angle))
         n = len(idx)
         arrive_inposition = [False for i in range(n)]
 
@@ -341,22 +356,24 @@ class mot_manipulator:
             self.log.Error("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))
 
 
-        if monitor_on:
-            while True:
-                dxl_comm_result = self.groupSyncRead.txRxPacket()
-                if dxl_comm_result != COMM_SUCCESS:
-                    print("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))
+        # if monitor_on:
+        #     while True:
+        #         dxl_comm_result = self.groupSyncRead.txRxPacket()
+        #         if dxl_comm_result != COMM_SUCCESS:
+        #             print("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))
 
-                for i in range(n):
-                    dxl_getdata_result = self.groupSyncRead.isAvailable(idx[i], addr_cur_posi, len_cur_posi)
-                    if dxl_getdata_result != True:
-                        self.log.Error("[ID:%03d] groupSyncRead getdata failed" % idx[i])
-                for i in range(n):
-                    cur_pos = self.groupSyncRead.getData(idx[i], addr_cur_posi, len_cur_posi)
-                    if self.module_param[idx].inposition >= abs(cur_pos-goalPosi[i]):
-                        arrive_inposition[i] = True
-                if not False in arrive_inposition:
-                    break
+        #         for i in range(n):
+        #             dxl_getdata_result = self.groupSyncRead.isAvailable(idx[i], addr_cur_posi, len_cur_posi)
+        #             if dxl_getdata_result != True:
+        #                 self.log.Error("[ID:%03d] groupSyncRead getdata failed" % idx[i])
+        #         for i in range(n):
+        #             cur_pos = self.groupSyncRead.getData(idx[i], addr_cur_posi, len_cur_posi)
+        #             # if self.module_param[idx].inposition >= abs(cur_pos*POSI_360/360 -goalPosi[i]):
+        #             if self.angle_to_float(self.module_param[idx].inposition) >= abs(cur_pos -goalPosi[i]):
+        #                 arrive_inposition[i] = True
+        #         if not False in arrive_inposition:
+        #             break
+        #         time.sleep(0.005)
 
         return True
 
@@ -381,10 +398,23 @@ class mot_manipulator:
                 self.log.Error("[ID:%03d] groupSyncRead getdata failed" % idx[i])
                 return cur_pos
             for i in range(n):
-                cur_pos[idx[i]] = self.groupSyncRead.getData(idx[i], addr_cur_posi, len_cur_posi)
+                cur_pos[idx[i]] =self.float_to_safetyangle( self.groupSyncRead.getData(idx[i], addr_cur_posi, len_cur_posi))
         return cur_pos
 
+    def float_to_safetyangle(self, val: float):
+        buf = val / POSI_360*360
+        buf %= 360
+        return buf
         
+
+    def angle_to_float(self, val: float):
+        val %= 360
+        buf = val * POSI_360/360        
+        return int(buf)
+    
+    # def check_inposition(val1:float, val2:float):
+    #     if 
+
     def disconnect(self):
         self.port_handler.closePort()
         return True
