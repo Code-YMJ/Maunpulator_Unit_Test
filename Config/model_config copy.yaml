@@ -5,14 +5,14 @@ init_position:
   joint_3: 359.0
 safety_position:
   joint_0: 180.0
-  joint_1: 200.0
-  joint_2: 100.0
+  joint_1: 180.0
+  joint_2: 126.0
   joint_3: 238.0
 target_position:
-  x: 235.0
-  y: 100.0
-  z: 180.0
+  x: 650.0
+  y: 0.0
+  z: 350.0
 wait_position:
-  x: 220.0
-  y: 100.0
-  z: 180.0
+  x: 600.0
+  y: 0.0
+  z: 350.0

@@ -1,4 +1,5 @@
 import enum
+from operator import index
 from .jeus_kinematictool import *
 from .jeus_dynamixel import *
 from .jeus_log import *
@@ -14,15 +15,13 @@ class jeus_maunpulator():
         self.module : mot_manipulator
         self.device_config = device_param()
         self.index_list = []
-        self.module_config = dict()  #ket :joint index //  value : joint parameter
-        # DEFAULT LINK CHAIN =========================================== theta, d, a, alpha, beta, b 
-        # self.LinkChain = np.array([[       0,    76.5,     0,  -np.pi/2, 0,     0],
-        #                            [-np.pi/2,       0,   530,         0, 0,  24.0],
-        #                            [ np.pi/2,       0,   474,         0, 0, -24.0],
-        #                            [       0,       0,    96,         0, 0,     0]])
+        self.module_config = dict()
         self.log = jeus_log(os.getcwd(), 'jeus_maunpulator')
+        
         # ROBOT 생성
         super().__init__()
+
+# Create module function
 
     def generate_module(self):
         self.module : mot_manipulator = mot_manipulator(self.device_config)
@@ -32,91 +31,7 @@ class jeus_maunpulator():
             return False
         
         return True
-    
-    def move_point(self, move_mode:MoveMode, x : float, y : float, z : float, rx=-1, ry=-1, rz=-1):
-        # todo - 
-        joint_angle_current =np.array(self.get_current_joint_pos().values())
-        joint_angle_target = self.get_ik_modf([x,y,z],joint_angle_current)
-        path : list
-        if move_mode == MoveMode.J_Move:
-            # path = self.get_J_path
-            self.module.move_multi_joint(self.index_list,joint_angle_target,100,False)
-        return
 
-    
-    def torque_on(self,  joint_num : int = -1) -> bool:
-        if joint_num == -1:
-            for k in self.index_list:
-                rtn = self.module.torque_onoff(k,True)
-                self.log.Info(f"{k} is Torque On [result] : {rtn}")
-        else:
-            rtn = self.module.torque_onoff(self.index_list[joint_num],True)
-            self.log.Info(f"{self.index_list[joint_num]} is Torque On [result] : {rtn}")
-        return rtn
-
-    def torque_off(self,  joint_num : int = -1) -> bool:
-        if joint_num == -1:
-            for k in self.index_list:
-                rtn = self.module.torque_onoff(k,False)
-                self.log.Info(f"{k} is Torque Off [result] : {rtn}")
-        else:
-            rtn = self.module.torque_onoff(self.index_list[joint_num],False)
-            self.log.Info(f"{self.index_list[joint_num]} is Torque Off [result] : {rtn}")
-        return rtn
-    
-    def get_torque_status(self,joint_num : int) -> bool:
-        rtn = self.module.get_torque_status(self.index_list[joint_num])
-        return rtn
-
-    def get_J_path(self, qs, qd, t0 = 0.0, t1 = 1.0, dt = 0.001, vel = 100, res = None ):
-        Ux = PathPlanner(qs, qd, t0, t1)
-        t = 0
-        
-        Q = []
-        q_pre = deepcopy(qs) 
-        
-        Q.append(qs)
-        
-        dof = 4
-
-        while(1):
-            t += dt
-            
-            # Get Cartesian Reference =================================================
-            q_tar = np.zeros(dof); qd_tar = np.zeros(dof); qdd_tar = np.zeros(dof);
-            for i in range(dof):
-                val, val_d, val_dd = get_state_traj(t, t0, Ux[i])
-                q_tar[i] = val; qd_tar[i] = val_d; qdd_tar[i] = val_dd
-            
-            q_cur = q_tar
-
-            # Append Data ------------------------------------------------------------
-            Q.append(q_cur)
-
-            # recursive --------------------------------
-            q_pre = deepcopy(q_cur)
-
-            if t > t1:
-                break
-
-    
-
-
-    def move_joint(self, joint_num : int , angle : float , vel = 100) -> bool:
-        if not self.module.move_one_joint(self.index_list[joint_num], angle,vel):
-            self.log.Error(f'Move Fail Joint {self.index_list[joint_num]} go angle {angle}')
-            return False
-        return True
-
-    def move_joint_all(self, joint_num : list[int] , angles : list[float] , vel = 20) -> bool:
-        idx_list = list()
-        for i in joint_num:
-            idx_list.append(i)
-        if not self.module.move_multi_joint(idx_list, angles,vel=vel):
-            self.log.Error('Move Fail Joints')
-            return False
-        return True
-    
     def get_param_value(self, config_path, config_filename):
         if not os.path.exists(os.path.join(config_path, config_filename)):
             self.log.Error("get_param_value : does not exist config file")
@@ -161,6 +76,7 @@ class jeus_maunpulator():
                     joint_param.max_ang = joint_yaml['max_ang']
 
                     joint_param.inposition = joint_yaml['inposition']
+                    joint_param.joint_offset = joint_yaml['offset_angle'] 
 
                     self.module_config[index] = joint_param
 
@@ -173,23 +89,147 @@ class jeus_maunpulator():
         except:
             self.log.Error("get_param_value : does not exist config fil")
             return False
+
+
+# dynamixel control function
+  
+    def torque_on(self,  joint_num : int = -1) -> bool:
+        if joint_num == -1:
+            for k in self.index_list:
+                rtn = self.module.torque_onoff(k,True)
+                self.log.Info(f"{k} is Torque On [result] : {rtn}")
+        else:
+            rtn = self.module.torque_onoff(self.index_list[joint_num],True)
+            self.log.Info(f"{self.index_list[joint_num]} is Torque On [result] : {rtn}")
+        return rtn
+
+    def torque_off(self,  joint_num : int = -1) -> bool:
+        if joint_num == -1:
+            for k in self.index_list:
+                rtn = self.module.torque_onoff(k,False)
+                self.log.Info(f"{k} is Torque Off [result] : {rtn}")
+        else:
+            rtn = self.module.torque_onoff(self.index_list[joint_num],False)
+            self.log.Info(f"{self.index_list[joint_num]} is Torque Off [result] : {rtn}")
+        return rtn
+
+    def disconnect(self):
+        self.module.disconnect()
+        return True
+    def point2Angle(self, move_mode:MoveMode, x : float, y : float, z : float, rx=-1, ry=-1, rz=-1):
+        # todo - 
+        joint_angle_current =np.array(self.get_current_joint_pos().values())
+        joint_angle_target = self.get_ik_modf([x,y,z],joint_angle_current)
+        buf = [((int(joint_angle_target[i]*RAD2DEG)-self.module_config[self.index_list[i]].joint_offset)* -1) for i in range(4)]
+        self.log.Error(f'joint_angle_target {buf}')
+        buf = self.adjust_offset_angle(joint_angle_target)
+        self.log.Error(f'joint_angle_target {buf}')
+        return joint_angle_target
+
+    def move_point(self, move_mode:MoveMode, x : float, y : float, z : float, rx=-1, ry=-1, rz=-1):
+        # todo - 
+        joint_angle_current =np.array(self.get_current_joint_pos().values())
+        joint_angle_target = self.get_ik_modf([x,y,z],joint_angle_current)
+        path : list
+        if move_mode == MoveMode.J_Move:
+            # path = self.get_J_path
+            self.move_joint_all(joint_angle_target,50,True)
+        return
+
+    def move_joint(self, joint_num : int , angle : float , vel = 100) -> bool:
+        if not self.module.move_one_joint(self.index_list[joint_num], angle,vel):
+            self.log.Error(f'Move Fail Joint {self.index_list[joint_num]} go angle {angle}')
+            return False
+        return True
+
+    def move_joint_all(self,  angles : list[int] , vel = 20, useoffset = False) -> bool:        
+        if useoffset :
+            angle_adjust = self.adjust_offset_angle(angles)
+        else:
+            angle_adjust= angles
+
+        if not self.module.move_multi_joint(self.index_list, angle_adjust,vel):
+            self.log.Error('Move Fail Joints')
+            return False
+        return True
+    
+    def get_torque_status(self,joint_num : int) -> bool:
+        rtn = self.module.get_torque_status(self.index_list[joint_num])
+        return rtn
+    
+    def get_current_joints_pos(self):
+        positions = self.module.get_multi_position(self.index_list)
+        return positions
+
+
+    def get_current_joint_pos(self):
+        positions = dict()
+        for i in self.index_list:
+            positions[i]=self.module.get_current_position(i)
+        return positions
+    
+    def adjust_offset_angle(self, val : list[int]):
+
+        buf = [((int(val[i]*RAD2DEG)-self.module_config[self.index_list[i]].joint_offset)* -1) for i in range(4)]
+        return buf
+
+
+
+# Kinematic function
+
+    def get_J_path(self, qs, qd, t0 = 0.0, t1 = 1.0, dt = 0.001, vel = 100, res = None ):
+        Ux = PathPlanner(qs, qd, t0, t1)
+        t = 0
+        
+        Q = []
+        q_pre = deepcopy(qs) 
+        
+        Q.append(qs)
+        
+        dof = 4
+
+        while(1):
+            t += dt
+            
+            # Get Cartesian Reference =================================================
+            q_tar = np.zeros(dof); qd_tar = np.zeros(dof); qdd_tar = np.zeros(dof);
+            for i in range(dof):
+                val, val_d, val_dd = get_state_traj(t, t0, Ux[i])
+                q_tar[i] = val; qd_tar[i] = val_d; qdd_tar[i] = val_dd
+            
+            q_cur = q_tar
+
+            # Append Data ------------------------------------------------------------
+            Q.append(q_cur)
+
+            # recursive --------------------------------
+            q_pre = deepcopy(q_cur)
+
+            if t > t1:
+                break
+        return q_tar, qd_tar
+ 
+ 
+
+    def get_current_xyz(self):
+        joint_angle_current =np.array(list(self.get_current_joint_pos().values()))*DEG2RAD
+        buf_vector = self.get_fk(joint_angle_current)
+         # translation vector
+        translation = buf_vector[0:3,3] 
+        return translation
+        
         
     def get_fk(self, q):
+        """ 
+        조인트들의 angle을 end effector's homogeneous transformation matrix로 바꿔주는 함수
+        q = angles [4x1]
+        return homogeneous transformation matrix [4x4]
+        """        
         T = np.eye(4)
         for i in range(len(q)):
             T = T @ get_link_tform_six_para(self.LinkChain[i,:], q[i])
             
         return T
-
-    def get_current_xyz(self):
-        joint_angle_current =np.array(list(self.get_current_joint_pos().values()))*DEG2RAD
-        print(joint_angle_current)
-        buf_vector = self.get_fk(joint_angle_current)
-        print(buf_vector)
-        translation = buf_vector[0:3,3] # translation
-        print(translation)
-        return translation
-        
     
     def get_ik(self, T, curJnt = [None for i in range(4)], shoulder = FRONT, elbow = DOWN):
         """ 
@@ -204,9 +244,10 @@ class jeus_maunpulator():
         _,    _, a3, _, _, b3 = self.LinkChain[2]
         _,   d4, a4,  _, _, _ = self.LinkChain[3]   
         
-        
-        R = T[0:3,0:3] # rotation 
-        o = T[0:3,3] # translation
+        # rotation vector
+        R = T[0:3,0:3]
+         # translation vector
+        o = T[0:3,3]
 
         xc, yc, zc = o
         
@@ -436,21 +477,4 @@ class jeus_maunpulator():
         q4 = (-th4-th4_prime)
         
         return np.array([q1, q2, q3, q4])
-
-    def get_current_joints_pos(self):
-        positions = self.module.get_multi_position(self.index_list)
-        return positions
-
-
-    def get_current_joint_pos(self):
-        positions = dict()
-        self.log.Info(self.index_list)
-        for i in self.index_list:
-            positions[i]=self.module.get_current_position(i)
-        return positions
-
-    def disconnect(self):
-        self.module.disconnect()
-        return True
-
 

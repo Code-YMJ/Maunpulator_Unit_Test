@@ -221,3 +221,12 @@ def pose2tr(vec):
 
     return T
 
+def angle_to_safetyangle( val):
+    if val >= 360:
+        val -= 360
+        return angle_to_safetyangle(val)
+    elif val >= 0:
+        return val
+    else:
+        val+=360
+        return angle_to_safetyangle(val)

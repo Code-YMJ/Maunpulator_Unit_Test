@@ -1,29 +1,44 @@
-import os
-import threading
-# from jeus_log import *
-# log = jeus_log(os.getcwd(), 'test')
-# log.Warning('Warning')
-# log.Error('Error')
-# log.Debug('Debug')
-# log.Info('Info')
-# log.Critical('Critical')
-# a=2
-# log.Critical('Joint_%02d'%a)
-# log.Critical('%02d'%a)
+import numpy as np 
+from numpy import arctan2, cos, sin, tan, pi
 
-from jeus_armcontrol import *
+def rotx(ang: float, unit='rad'):
+    if unit == 'deg':
+        ang = np.deg2rad(ang)
 
-manupulator = jeus_maunpulator()
+    return np.array([[1,        0,         0],
+                     [0, cos(ang), -sin(ang)],
+                     [0, sin(ang),  cos(ang)]])
 
-if not manupulator.get_param_value(os.path.join(os.getcwd(),'Config'),'arm_config.yaml'):
-    exit(1)
-if not manupulator.generate_module():
-    exit(1)
-dt =0
+def roty(ang: float, unit='rad'):
+    if unit == 'deg':
+        ang = np.deg2rad(ang)
 
-manupulator.torque_on()
+    return np.array([[cos(ang),  0,  sin(ang)],
+                     [0,  1,         0],
+                     [-sin(ang),  0,  cos(ang)]])
 
+def rotz(ang: float, unit='rad'):
+    if unit == 'deg':
+        ang = np.deg2rad(ang)
 
-manupulator.move_joint(3,90)
+    return np.array([[cos(ang), -sin(ang),  0],
+                     [sin(ang),  cos(ang),  0],
+                     [0,         0,  1]])
+PI = np.pi; 
+PI_TWO = 2* np.pi;
+PI_DIV_2 = np.pi/2
+PI_DIV_4 = np.pi/4
 
-manupulator.torque_off()
+x = rotx(PI_DIV_2)
+y = roty(PI_DIV_2*-1)
+z = rotz(PI_DIV_2)
+
+p =  np.array([2,1,3])
+print(p)
+print(x)
+tp = x@p
+print(tp)
+tp = y@p
+print(tp)
+tp = z@p
+print(tp)

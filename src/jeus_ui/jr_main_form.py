@@ -14,12 +14,17 @@ import yaml
 from ui_jr_main_form import *
 
 config_init_posi = 'init_position'
+config_safety_posi = 'safety_position'
 config_wait_posi = 'wait_position'
 config_target_posi = 'target_position'
 x = 'x'
 y = 'y'
 z = 'z'
 ry = 'ry'
+joint_0 = 'joint_0'
+joint_1 = 'joint_1'
+joint_2 = 'joint_2'
+joint_3 = 'joint_3'
 
 class worker(QThread):
     def __init__(self,parent,  func, *args):
@@ -35,51 +40,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.show()
         self.setconfig()
-        # self.connect_device()
-        # self.monitor_onoff(True)
         self.timer = QTimer(self)
-        self.timer.start(10)
-        self.timer.timeout.connect(self.get_current)
+        self.timer.start(100)
+        self.timer.timeout.connect(self.get_current_positions)
+        self.InUse =False
 
-
-
-
-    def setconfig(self):
-        path =os.path.join(os.getcwd(),'Config','model_config.yaml')
-        with open(path) as fileopen:
-            model_config = yaml.load(fileopen, Loader=yaml.FullLoader)
-            init_pos = model_config[config_init_posi]
-            self.tbInitPos_X.setPlainText(str(init_pos[x]))
-            self.tbInitPos_Y.setPlainText(str(init_pos[y]))
-            self.tbInitPos_Z.setPlainText(str(init_pos[z]))
-            self.tbInitPos_Ry.setPlainText(str(init_pos[ry]))
-
-            wait_pos = model_config[config_wait_posi]
-            self.tbWaitPos_X.setPlainText(str(wait_pos[x]))
-            self.tbWaitPos_Y.setPlainText(str(wait_pos[y]))
-            self.tbWaitPos_Z.setPlainText(str(wait_pos[z]))
-            self.tbWaitPos_Ry.setPlainText(str(wait_pos[ry]))
-
-            target_pos = model_config[config_target_posi]
-            self.tbTargetPos_X.setPlainText(str(target_pos[x]))
-            self.tbTargetPos_Y.setPlainText(str(target_pos[y]))
-            self.tbTargetPos_Z.setPlainText(str(target_pos[z]))
-            self.tbTargetPos_Ry.setPlainText(str(target_pos[ry]))
-
-
-        
-    def get_current(self):
-        if hasattr(self, 'manupulator') and self.IsConnect:
-            positions = self.manupulator.get_current_joint_pos()
-            key_hard = sorted(positions.keys())
-
-            self.tbCurrentPosJoint1.setPlainText(str(round(positions[key_hard[0]], 3)))
-            self.tbCurrentPosJoint2.setPlainText(str(round(positions[key_hard[1]], 3)))
-            self.tbCurrentPosJoint3.setPlainText(str(round(positions[key_hard[2]], 3)))
-            self.tbCurrentPosJoint4.setPlainText(str(round(positions[key_hard[3]], 3)))
 
     def connect_device(self):
-        if not hasattr(self, 'IsConnect') or not self.IsConnect:
+        if not hasattr(self, 'IsConnect') or not self.IsConnect or not self.InUse :
             self.btnConnect.setText('connectting')
             self.manupulator = jeus_maunpulator()
             self.manupulator.get_param_value(os.path.join(os.getcwd(),'Config'),'arm_config.yaml')
@@ -91,6 +59,56 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.IsConnect = False
             self.manupulator.disconnect()
             self.btnConnect.setText('disconnected')
+
+
+    def setconfig(self):
+        path =os.path.join(os.getcwd(),'Config','model_config.yaml')
+        with open(path) as fileopen:
+            model_config = yaml.load(fileopen, Loader=yaml.FullLoader)
+            init_pos = model_config[config_init_posi]
+            self.tbInitPos_0.setPlainText(str(init_pos[joint_0]))
+            self.tbInitPos_1.setPlainText(str(init_pos[joint_1]))
+            self.tbInitPos_2.setPlainText(str(init_pos[joint_2]))
+            self.tbInitPos_3.setPlainText(str(init_pos[joint_3]))
+
+            safety_pos = model_config[config_safety_posi]
+            self.tbSafetyPos_0.setPlainText(str(safety_pos[joint_0]))
+            self.tbSafetyPos_1.setPlainText(str(safety_pos[joint_1]))
+            self.tbSafetyPos_2.setPlainText(str(safety_pos[joint_2]))
+            self.tbSafetyPos_3.setPlainText(str(safety_pos[joint_3]))
+
+            wait_pos = model_config[config_wait_posi]
+            self.tbWaitPos_X.setPlainText(str(wait_pos[x]))
+            self.tbWaitPos_Y.setPlainText(str(wait_pos[y]))
+            self.tbWaitPos_Z.setPlainText(str(wait_pos[z]))
+
+            target_pos = model_config[config_target_posi]
+            self.tbTargetPos_X.setPlainText(str(target_pos[x]))
+            self.tbTargetPos_Y.setPlainText(str(target_pos[y]))
+            self.tbTargetPos_Z.setPlainText(str(target_pos[z]))
+
+
+    def save(self):
+        path =os.path.join(os.getcwd(),'Config','model_config.yaml')
+        data=\
+            { config_init_posi:{joint_0:float(self.tbInitPos_0.toPlainText()),joint_1: float(self.tbInitPos_1.toPlainText()), joint_2: float(self.tbInitPos_2.toPlainText()), joint_3: float(self.tbInitPos_3.toPlainText())}  \
+            , config_safety_posi:{joint_0:float(self.tbSafetyPos_0.toPlainText()),joint_1: float(self.tbSafetyPos_1.toPlainText()), joint_2: float(self.tbSafetyPos_2.toPlainText()), joint_3: float(self.tbSafetyPos_3.toPlainText())}  \
+            , config_wait_posi:{x:float(self.tbWaitPos_X.toPlainText()), y:float(self.tbWaitPos_Y.toPlainText()), 'z': float(self.tbWaitPos_Z.toPlainText())}   \
+             , config_target_posi:{'x':float(self.tbTargetPos_X.toPlainText()), 'y':float(self.tbTargetPos_Y.toPlainText()), 'z': float(self.tbTargetPos_Z.toPlainText()) }}
+        with open(path,'w') as fileopen:
+            yaml.dump(data,fileopen,default_flow_style=False)
+
+        
+    def get_current_positions(self):
+        if hasattr(self, 'manupulator') and self.IsConnect:
+            positions = self.manupulator.get_current_joint_pos()
+            key_hard = sorted(positions.keys())
+
+            self.tbCurrentPosJoint1.setPlainText(str(round(positions[key_hard[0]], 3)))
+            self.tbCurrentPosJoint2.setPlainText(str(round(positions[key_hard[1]], 3)))
+            self.tbCurrentPosJoint3.setPlainText(str(round(positions[key_hard[2]], 3)))
+            self.tbCurrentPosJoint4.setPlainText(str(round(positions[key_hard[3]], 3)))
+
 
     def torque_onoff(self):
         sender = self.sender()        
@@ -129,29 +147,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 
     def move_J(self):        
+        self.InUse =True
         sender = self.sender()        
         sender_name = sender.objectName()
-        x = 0.0
-        y = 0.0
-        z = 0.0
-
         if sender_name == self.btnMoveInitPos.objectName():
-            x = float(self.tbInitPos_X.toPlainText())
-            y = float(self.tbInitPos_Y.toPlainText())
-            Z = float(self.tbInitPos_Z.toPlainText())
+            joint_0 = float(self.tbInitPos_0.toPlainText())
+            joint_1 = float(self.tbInitPos_1.toPlainText())
+            joint_2 = float(self.tbInitPos_2.toPlainText())
+            joint_3 = float(self.tbInitPos_3.toPlainText())
+            angles = [joint_0,joint_1,joint_2,joint_3]
+            self.manupulator.move_joint_all(angles ,100, False)
 
-        elif sender_name == self.btnMoveWaitPos.objectName():
-            x = float(self.tbInitPos_X.toPlainText())
-            y = float(self.tbInitPos_Y.toPlainText())
-            Z = float(self.tbInitPos_Z.toPlainText())
+        elif sender_name == self.btnMoveSafetyPos.objectName():
+            joint_0 = float(self.tbSafetyPos_0.toPlainText())
+            joint_1 = float(self.tbSafetyPos_1.toPlainText())
+            joint_2 = float(self.tbSafetyPos_2.toPlainText())
+            joint_3 = float(self.tbSafetyPos_3.toPlainText())
+            angles = [joint_0,joint_1,joint_2,joint_3]
+            self.manupulator.move_joint_all( angles ,100, False)
         
+        elif sender_name == self.btnMoveWaitPos.objectName():
+            x = float(self.tbWaitPos_X.toPlainText())
+            y = float(self.tbWaitPos_Y.toPlainText())
+            z = float(self.tbWaitPos_Z.toPlainText())
+            self.manupulator.move_point(MoveMode.J_Move, x, y, z)
+            # joint_angles = self.manupulator.point2Angle(MoveMode.J_Move, x, y, z)
+
         elif sender_name == self.btnMoveTargetPos_J.objectName():
-            x = float(self.tbInitPos_X.toPlainText())
-            y = float(self.tbInitPos_Y.toPlainText())
-            Z = float(self.tbInitPos_Z.toPlainText())
+            x = float(self.tbTargetPos_X.toPlainText())
+            y = float(self.tbTargetPos_Y.toPlainText())
+            z = float(self.tbTargetPos_Z.toPlainText())
+            self.manupulator.move_point(MoveMode.J_Move, x, y, z)
         else:
             return
-        self.manupulator.move_point(MoveMode.J_Move, x, y, z)
+        self.InUse =False
 
     def move_L(self):
         pass
@@ -161,14 +190,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         pass
     def sequence_all(self):
         pass
-    def save(self):
-        path =os.path.join(os.getcwd(),'Config','model_config.yaml')
-        data=\
-            { config_init_posi:{x:float(self.tbInitPos_X.toPlainText()), y:float(self.tbInitPos_Y.toPlainText()), z: float(self.tbInitPos_Z.toPlainText()), ry: float(self.tbInitPos_Ry.toPlainText())}  \
-            , config_wait_posi:{x:float(self.tbWaitPos_X.toPlainText()), y:float(self.tbWaitPos_Y.toPlainText()), 'z': float(self.tbWaitPos_Z.toPlainText()),'ry': float(self.tbWaitPos_Ry.toPlainText())}   \
-            , config_target_posi:{'x':float(self.tbTargetPos_X.toPlainText()), 'y':float(self.tbTargetPos_Y.toPlainText()), 'z': float(self.tbTargetPos_Z.toPlainText()),'ry': float(self.tbTargetPos_Ry.toPlainText())}}
-        with open(path,'w') as fileopen:
-            yaml.dump(data,fileopen,default_flow_style=False)
         
 
 app = QApplication([])

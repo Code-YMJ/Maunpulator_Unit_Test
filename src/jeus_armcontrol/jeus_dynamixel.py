@@ -110,6 +110,8 @@ class joint_move_param:
     max_LoadmA : int = 0
     min_ang : int = 0
     max_ang : int = 0
+    joint_offset : int = 0
+
 @dataclass
 class device_param:
     protocol_version :int  = 2.0
@@ -147,7 +149,11 @@ class mot_manipulator:
         else:
             self.log.Info("Succeeded to change the baudrate")
         return True
-
+        
+    def disconnect(self):
+        self.port_handler.closePort()
+        return True
+    
     # Function: set joint_parameter
     def set_module_param(self, module_param :dict[int,joint_move_param]):
         self.module_param :dict[int,joint_move_param] = module_param
@@ -326,57 +332,57 @@ class mot_manipulator:
         addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']
         len_cur_posi = ctl_table['ADDR_PRES_POSI']['size']
         # goalPosi = np.array(angle)*POSI_360/360 
-        goalPosi = self.angle_to_float(np.array(angle))
+        # goalPosi = self.angle_to_float(np.array(angle))
+        # goalPosi = [self.angle_to_float(angle[i]) for i in range(len(angle))]
         n = len(idx)
-        arrive_inposition = [False for i in range(n)]
+        # arrive_inposition = [False for i in range(n)]
+        self.log.Info(f"Start Move : [{angle}]")
 
-        self.groupSyncRead.clearParam()
-        self.groupSyncWrite.clearParam()
+
         if not type(vel) is list:
-            vel = [vel for i in range(n)]
+            vel_buf = [vel for i in range(n)]
+        else:
+            vel_buf = vel
         if n != len(angle):
             self.log.Error('move_all_joint Fail : idx length error')
-        for i in range(len(idx)):       
-            dxl_addparam_result = self.groupSyncRead.addParam(idx[i])
-            if dxl_addparam_result != True:
-                self.log.Error("[ID:%03d] groupSyncRead addparam failed" % idx[i])
-            if not self.writeParam(i, self.module_param[idx].p_gain, self.module_param[idx].i_gain, self.module_param[idx].d_gain, 0, 0, vel[idx[i]], 0, False):
+        for i in range(n):  
+            self.log.Info(f'{idx[i]},p gain {self.module_param[idx[i]].p_gain}, i gain {self.module_param[idx[i]].i_gain}, d gain {self.module_param[idx[i]].d_gain}, f1 0, f2 0, vel {vel_buf[i]}, 1, False')
+            if not self.writeParam(idx[i], self.module_param[idx[i]].p_gain, self.module_param[idx[i]].i_gain, self.module_param[idx[i]].d_gain, 0, 0, vel_buf[i], 1, False):
                 return False
-        # Add Dynamixel#1 goal position value to the Syncwrite parameter storage
-        for i in range(n):
-            send_data = self.convert_position_byte(angle[i])
-            dxl_addparam_result = self.groupSyncWrite.addParam(idx[i], send_data)
-            if dxl_addparam_result != True:
-                self.log.Error("[ID:%03d] groupSyncWrite addparam failed" % idx[i])
-                return False
-
-        # Syncwrite goal position
-        dxl_comm_result = self.groupSyncWrite.txPacket()
-        if dxl_comm_result != COMM_SUCCESS:
-            self.log.Error("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))
-
-
-        # if monitor_on:
-        #     while True:
-        #         dxl_comm_result = self.groupSyncRead.txRxPacket()
-        #         if dxl_comm_result != COMM_SUCCESS:
-        #             print("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))
-
-        #         for i in range(n):
-        #             dxl_getdata_result = self.groupSyncRead.isAvailable(idx[i], addr_cur_posi, len_cur_posi)
-        #             if dxl_getdata_result != True:
-        #                 self.log.Error("[ID:%03d] groupSyncRead getdata failed" % idx[i])
-        #         for i in range(n):
-        #             cur_pos = self.groupSyncRead.getData(idx[i], addr_cur_posi, len_cur_posi)
-        #             # if self.module_param[idx].inposition >= abs(cur_pos*POSI_360/360 -goalPosi[i]):
-        #             if self.angle_to_float(self.module_param[idx].inposition) >= abs(cur_pos -goalPosi[i]):
-        #                 arrive_inposition[i] = True
-        #         if not False in arrive_inposition:
-        #             break
-        #         time.sleep(0.005)
-
+            self.set_goal_position(idx[i], self.angle_to_float(angle[i]), False)
+            
         return True
+    def move_multi_joint_test(self, idx : list[int], angle :  list[int], vel= 20, monitor_on = True) -> bool:
+        addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']
+        len_cur_posi = ctl_table['ADDR_PRES_POSI']['size']
+        # goalPosi = np.array(angle)*POSI_360/360 
+        # goalPosi = self.angle_to_float(np.array(angle))
+        # goalPosi = [self.angle_to_float(angle[i]) for i in range(len(angle))]
+        n = len(idx)
+        # arrive_inposition = [False for i in range(n)]
+        self.log.Info(f"Start Move : [{angle}]")
 
+        if not type(vel) is list:
+            vel_buf = [vel for i in range(n)]
+        else:
+            vel_buf = vel
+        if n != len(angle):
+            self.log.Error('move_all_joint Fail : idx length error')
+        for i in range(n): 
+            self.log.Info(f'{idx[i]},p gain {self.module_param[idx[i]].p_gain}, i gain {self.module_param[idx[i]].i_gain}, d gain {self.module_param[idx[i]].d_gain}, f1 0, f2 0, vel {vel_buf[i]}, 1, False')
+            if not self.writeParam(idx[i], self.module_param[idx[i]].p_gain, self.module_param[idx[i]].i_gain, self.module_param[idx[i]].d_gain, 0, 0, vel_buf[i], 1, False):
+                return False
+        for i in range(n): 
+            angle_int = int(angle[i])
+            param_goal_position = [DXL_LOBYTE(DXL_LOWORD(angle_int)), DXL_HIBYTE(DXL_LOWORD(angle_int)), DXL_LOBYTE(DXL_HIWORD(angle_int)), DXL_HIBYTE(DXL_HIWORD(angle_int))]
+            dxl_addparam_result = self.groupSyncWrite.addParam(idx[i], param_goal_position)
+            if dxl_addparam_result != True:
+                print("[ID:%03d] groupSyncWrite addparam failed" % idx[i]) 
+            
+        dxl_comm_result = self.groupSyncWrite.txPacket()
+        self.groupSyncWrite.clearParam()
+        
+        return True
     def get_multi_position(self, idx : list[int]):
         self.groupSyncRead.clearParam()
         addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']
@@ -404,7 +410,7 @@ class mot_manipulator:
     def float_to_safetyangle(self, val: float):
         buf = val / POSI_360*360
         buf %= 360
-        return buf
+        return self.angle_to_safetyangle(buf)
         
 
     def angle_to_float(self, val: float):
@@ -412,10 +418,15 @@ class mot_manipulator:
         buf = val * POSI_360/360        
         return int(buf)
     
+    def angle_to_safetyangle(self, val):
+        if val >= 360:
+            val -= 360
+            return self.angle_to_safetyangle(val)
+        elif val >= 0:
+            return val
+        else:
+            val+=360
+            return self.angle_to_safetyangle(val)
     # def check_inposition(val1:float, val2:float):
     #     if 
 
-    def disconnect(self):
-        self.port_handler.closePort()
-        return True
-    
