@@ -17,6 +17,7 @@ config_init_posi = 'init_position'
 config_safety_posi = 'safety_position'
 config_wait_posi = 'wait_position'
 config_target_posi = 'target_position'
+config_transform = 'transform'
 x = 'x'
 y = 'y'
 z = 'z'
@@ -33,6 +34,21 @@ class worker(QThread):
         self.val = args
     def run(self):
         self.func(self.val[0],self.val[1])
+
+
+"""
+x,y,z 이동후 rx 회전, rz 회전 !!
+기준 좌표계 기준으로한 회전
+"""
+@dataclass
+class transform_param():
+    x : int = 0
+    y : int = 0
+    z : int = 0
+    rx : int = 0
+    rz : int = 0
+
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -87,6 +103,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.tbTargetPos_Y.setPlainText(str(target_pos[y]))
             self.tbTargetPos_Z.setPlainText(str(target_pos[z]))
 
+            # transforms_config = model_config[config_transform]
+            # self.transform_config = transform_param()
+            # self.transform_config.x = transforms_config[x]
+            # self.transform_config.y = transforms_config[y]
+            # self.transform_config.z = transforms_config[z]
+            # self.transform_config.rx = transforms_config['rx']
+            # self.transform_config.rz = transforms_config['rz']
 
     def save(self):
         path =os.path.join(os.getcwd(),'Config','model_config.yaml')
@@ -190,7 +213,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         pass
     def sequence_all(self):
         pass
+    def transform_coordinates(self,x,y,z):
+        xyz = np.array([x,y,z])
+        translate_vector = np.array([self.transform_config.x,self.transform_config.y,self.transform_config.z])
+        ix = np.linalg.inv(rotx(self.transform_config.rx))
+        iz = np.linalg.inv(rotx(self.transform_config.rz))
+        rotate_vector = iz@ix
+        rv = rotate_vector@(xyz-translate_vector)
+        return rv
+
         
+
 
 app = QApplication([])
 ex = MainWindow()

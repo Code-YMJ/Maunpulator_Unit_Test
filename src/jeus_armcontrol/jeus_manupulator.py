@@ -1,5 +1,7 @@
 import enum
+import math
 from operator import index
+from threading import Timer
 from .jeus_kinematictool import *
 from .jeus_dynamixel import *
 from .jeus_log import *
@@ -116,7 +118,8 @@ class jeus_maunpulator():
     def disconnect(self):
         self.module.disconnect()
         return True
-    def point2Angle(self, move_mode:MoveMode, x : float, y : float, z : float, rx=-1, ry=-1, rz=-1):
+
+    def point2Angle(self, move_mode : MoveMode, x : float, y : float, z : float, rx=-1, ry=-1, rz=-1):
         # todo - 
         joint_angle_current =np.array(self.get_current_joint_pos().values())
         joint_angle_target = self.get_ik_modf([x,y,z],joint_angle_current)
@@ -128,12 +131,34 @@ class jeus_maunpulator():
 
     def move_point(self, move_mode:MoveMode, x : float, y : float, z : float, rx=-1, ry=-1, rz=-1):
         # todo - 
-        joint_angle_current =np.array(self.get_current_joint_pos().values())
+        joint_angle_current = np.array([self.get_current_joint_pos()[self.index_list[i]] for i in range(4)])*DEG2RAD
+        self.log.Info(f"joint_angle_current {joint_angle_current}")
         joint_angle_target = self.get_ik_modf([x,y,z],joint_angle_current)
-        path : list
+        self.log.Info(f"joint_angle_target {joint_angle_target}")
+        ac = np.array(self.adjust_offset_angle(joint_angle_current-joint_angle_target))
+        # at = np.array(self.adjust_offset_angle(joint_angle_target))
+        dif = np.array([self.module.angle_to_safetyangle(ac[i]) for i in range(4)])
+        diff = abs(dif)
+        self.log.Info(f"diff {diff}")
+        ratio = diff/max(diff)
+        self.log.Info(f"ratio {ratio}")
+        velo = [ratio[i]* 100 for i in range(4)]
+        paths : list
+        # if move_mode == MoveMode.J_Move:
+        #     self.get_J_path(joint_angle_current,joint_angle_target,0,1, 0.05)
+
+        # return
+        if move_mode == MoveMode.J_Move:            
+            self.move_joint_all(joint_angle_target,velo,True)
+        return
+    def move_point_test(self, move_mode : MoveMode, x : float, y : float, z : float):
+        # TBD 
+        joint_angle_current =np.array(list(self.get_current_joint_pos().items()))*DEG2RAD
+        joint_angle_target = self.get_ik_modf([x,y,z],joint_angle_current)
+        paths : list
         if move_mode == MoveMode.J_Move:
-            # path = self.get_J_path
-            self.move_joint_all(joint_angle_target,50,True)
+            self.get_J_path(joint_angle_current,joint_angle_target,0,1, 0.05)
+
         return
 
     def move_joint(self, joint_num : int , angle : float , vel = 100) -> bool:
@@ -147,8 +172,8 @@ class jeus_maunpulator():
             angle_adjust = self.adjust_offset_angle(angles)
         else:
             angle_adjust= angles
-
-        if not self.module.move_multi_joint(self.index_list, angle_adjust,vel):
+        self.log.Info(f"angle_adjust {angle_adjust}")
+        if not self.module.move_multi_sync_joint(self.index_list, angle_adjust,vel):
             self.log.Error('Move Fail Joints')
             return False
         return True
@@ -169,15 +194,17 @@ class jeus_maunpulator():
         return positions
     
     def adjust_offset_angle(self, val : list[int]):
-
-        buf = [((int(val[i]*RAD2DEG)-self.module_config[self.index_list[i]].joint_offset)* -1) for i in range(4)]
+        buf = [(((val[i]*RAD2DEG)-self.module_config[self.index_list[i]].joint_offset)* -1) for i in range(4)]
         return buf
 
 
 
 # Kinematic function
-
-    def get_J_path(self, qs, qd, t0 = 0.0, t1 = 1.0, dt = 0.001, vel = 100, res = None ):
+# 
+    def get_J_path(self, qs, qd, t0 = 0.0, t1 = 1.0, dt = 0.01, vel = 100, res = None ):
+        """
+        Test Code 
+        """
         Ux = PathPlanner(qs, qd, t0, t1)
         t = 0
         
@@ -195,10 +222,16 @@ class jeus_maunpulator():
             q_tar = np.zeros(dof); qd_tar = np.zeros(dof); qdd_tar = np.zeros(dof);
             for i in range(dof):
                 val, val_d, val_dd = get_state_traj(t, t0, Ux[i])
-                q_tar[i] = val; qd_tar[i] = val_d; qdd_tar[i] = val_dd
-            
+                q_tar[i] = val[1]
+                qd_tar[i] =int(abs(val_d[0]))
+                # qd_tar[i] =round(abs(val_d[0]),1)
+                if qd_tar[i] == 0:
+                    qd_tar[i] = 1 
+        
+            self.log.Info(f"goal posi : {q_tar}")
+            self.log.Info(f"vel : {qd_tar}")
             q_cur = q_tar
-
+            self.move_joint_all(q_cur,10,True)
             # Append Data ------------------------------------------------------------
             Q.append(q_cur)
 
@@ -207,7 +240,7 @@ class jeus_maunpulator():
 
             if t > t1:
                 break
-        return q_tar, qd_tar
+        return q_tar
  
  
 

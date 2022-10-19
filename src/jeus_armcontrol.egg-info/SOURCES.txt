@@ -6,6 +6,7 @@ src/jeus_armcontrol/jeus_dynamixel.py
 src/jeus_armcontrol/jeus_kinematictool.py
 src/jeus_armcontrol/jeus_log.py
 src/jeus_armcontrol/jeus_manupulator.py
+src/jeus_armcontrol/jeus_tranform.py
 src/jeus_armcontrol/test.py
 src/jeus_armcontrol.egg-info/PKG-INFO
 src/jeus_armcontrol.egg-info/SOURCES.txt

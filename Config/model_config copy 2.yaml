@@ -1,0 +1,18 @@
+init_position:
+  joint_0: 178.901
+  joint_1: 270.0
+  joint_2: 92.0
+  joint_3: 359.0
+safety_position:
+  joint_0: 180.0
+  joint_1: 200.0
+  joint_2: 100.0
+  joint_3: 238.0
+target_position:
+  x: 240.0
+  y: 100.0
+  z: 180.0
+wait_position:
+  x: 220.0
+  y: 100.0
+  z: 180.0

@@ -24,7 +24,7 @@ Joint:
     offset_angle: 180
   Joint_01:
     index: 12
-    a: 128
+    a: 474
     alpha: 0
     b: 24
     beta: 0
@@ -42,7 +42,7 @@ Joint:
     offset_angle: 180
   Joint_02:
     index: 13
-    a: 105
+    a: 185
     alpha: 0
     b: -24
     beta: 0

@@ -5,6 +5,8 @@ import numpy as np
 import os
 import time
 import sys
+
+from jeus_armcontrol.jeus_kinematictool import RAD2DEG
 from .jeus_log import *
 
 
@@ -222,7 +224,7 @@ class mot_manipulator:
     def get_current_position(self, idx):
         rv = self.readCtlTable(idx, 'ADDR_PRES_POSI')
         # return rv/(POSI_360/360)
-        return self.float_to_safetyangle(rv)
+        return self.pulse_to_safetyangle(rv)
 
     # Function: Read present milli ampere load
     def get_current_loadmA(self, idx):
@@ -311,7 +313,7 @@ class mot_manipulator:
         addr_goal_posi = ctl_table['ADDR_GOAL_POSI']['addr']
         addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']
         # goalPosi = int(POSI_360*angle/360)
-        goalPosi = self.angle_to_float(angle)
+        goalPosi = self.angle_to_pulse(angle)
         self.log.Info(f'{idx},p gain {self.module_param[idx].p_gain}, i gain {self.module_param[idx].i_gain}, d gain {self.module_param[idx].d_gain}, f1 0, f2 0, vel {vel}, 1, False')
         if not self.writeParam(idx, self.module_param[idx].p_gain, self.module_param[idx].i_gain, self.module_param[idx].d_gain, 0, 0, vel, 1, False):
             return False
@@ -349,7 +351,8 @@ class mot_manipulator:
             self.log.Info(f'{idx[i]},p gain {self.module_param[idx[i]].p_gain}, i gain {self.module_param[idx[i]].i_gain}, d gain {self.module_param[idx[i]].d_gain}, f1 0, f2 0, vel {vel_buf[i]}, 1, False')
             if not self.writeParam(idx[i], self.module_param[idx[i]].p_gain, self.module_param[idx[i]].i_gain, self.module_param[idx[i]].d_gain, 0, 0, vel_buf[i], 1, False):
                 return False
-            self.set_goal_position(idx[i], self.angle_to_float(angle[i]), False)
+            self.set_goal_position(idx[i], self.angle_to_pulse(angle[i]), False)
+
             
         return True
     def move_multi_joint_test(self, idx : list[int], angle :  list[int], vel= 20, monitor_on = True) -> bool:
@@ -360,29 +363,64 @@ class mot_manipulator:
         # goalPosi = [self.angle_to_float(angle[i]) for i in range(len(angle))]
         n = len(idx)
         # arrive_inposition = [False for i in range(n)]
-        self.log.Info(f"Start Move : [{angle}]")
+        self.log.Info(f"Start Move : {angle}")
 
-        if not type(vel) is list:
+        if type(vel) is int:
             vel_buf = [vel for i in range(n)]
         else:
             vel_buf = vel
+        self.log.Info(f"velo set : {vel_buf}")
         if n != len(angle):
             self.log.Error('move_all_joint Fail : idx length error')
         for i in range(n): 
             self.log.Info(f'{idx[i]},p gain {self.module_param[idx[i]].p_gain}, i gain {self.module_param[idx[i]].i_gain}, d gain {self.module_param[idx[i]].d_gain}, f1 0, f2 0, vel {vel_buf[i]}, 1, False')
-            if not self.writeParam(idx[i], self.module_param[idx[i]].p_gain, self.module_param[idx[i]].i_gain, self.module_param[idx[i]].d_gain, 0, 0, vel_buf[i], 1, False):
+            if not self.writeParam(idx[i], self.module_param[idx[i]].p_gain, self.module_param[idx[i]].i_gain, self.module_param[idx[i]].d_gain, 0, 0, int(vel_buf[i]), 1, False):
                 return False
         for i in range(n): 
-            angle_int = int(angle[i])
+            angle_int = self.angle_to_pulse(angle[i])
+            self.log.Error(f'joint [{i}] : {angle_int}')
+
             param_goal_position = [DXL_LOBYTE(DXL_LOWORD(angle_int)), DXL_HIBYTE(DXL_LOWORD(angle_int)), DXL_LOBYTE(DXL_HIWORD(angle_int)), DXL_HIBYTE(DXL_HIWORD(angle_int))]
             dxl_addparam_result = self.groupSyncWrite.addParam(idx[i], param_goal_position)
             if dxl_addparam_result != True:
                 print("[ID:%03d] groupSyncWrite addparam failed" % idx[i]) 
             
         dxl_comm_result = self.groupSyncWrite.txPacket()
-        self.groupSyncWrite.clearParam()
-        
+        self.groupSyncWrite.clearParam()        
         return True
+
+    def move_multi_sync_joint(self, idx : list[int], angle :  list[int], vel= 20, monitor_on = True) -> bool:
+        addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']
+        len_cur_posi = ctl_table['ADDR_PRES_POSI']['size']
+        # goalPosi = np.array(angle)*POSI_360/360 
+        # goalPosi = self.angle_to_float(np.array(angle))
+        # goalPosi = [self.angle_to_float(angle[i]) for i in range(len(angle))]
+        n = len(idx)
+        # arrive_inposition = [False for i in range(n)]
+
+        if type(vel) is int:
+            vel_buf = [vel for i in range(n)]
+        else:
+            vel_buf = vel
+        self.log.Info(f"velo set : {vel_buf}")
+        if n != len(angle):
+            self.log.Error('move_all_joint Fail : idx length error')
+        for i in range(n): 
+            self.log.Info(f'{idx[i]},p gain {self.module_param[idx[i]].p_gain}, i gain {self.module_param[idx[i]].i_gain}, d gain {self.module_param[idx[i]].d_gain}, f1 0, f2 0, vel {vel_buf[i]}, 1, False')
+            if not self.writeParam(idx[i], self.module_param[idx[i]].p_gain, self.module_param[idx[i]].i_gain, self.module_param[idx[i]].d_gain, 0, 0, int(vel_buf[i]), 1, False):
+                return False
+        for i in range(n): 
+            angle_int = self.angle_to_pulse(angle[i])
+            self.log.Info(f'joint [{i}] : {angle_int}')
+            param_goal_position = [DXL_LOBYTE(DXL_LOWORD(angle_int)), DXL_HIBYTE(DXL_LOWORD(angle_int)), DXL_LOBYTE(DXL_HIWORD(angle_int)), DXL_HIBYTE(DXL_HIWORD(angle_int))]
+            dxl_addparam_result = self.groupSyncWrite.addParam(idx[i], param_goal_position)
+            if dxl_addparam_result != True:
+                print("[ID:%03d] groupSyncWrite addparam failed" % idx[i]) 
+        self.log.Info(f"Start Move : {angle_int}")        
+        dxl_comm_result = self.groupSyncWrite.txPacket()
+        self.groupSyncWrite.clearParam()        
+        return True
+        
     def get_multi_position(self, idx : list[int]):
         self.groupSyncRead.clearParam()
         addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']
@@ -404,21 +442,25 @@ class mot_manipulator:
                 self.log.Error("[ID:%03d] groupSyncRead getdata failed" % idx[i])
                 return cur_pos
             for i in range(n):
-                cur_pos[idx[i]] =self.float_to_safetyangle( self.groupSyncRead.getData(idx[i], addr_cur_posi, len_cur_posi))
+                cur_pos[idx[i]] =self.pulse_to_safetyangle(self.groupSyncRead.getData(idx[i], addr_cur_posi, len_cur_posi))
         return cur_pos
 
-    def float_to_safetyangle(self, val: float):
+    def pulse_to_safetyangle(self, val: float):
         buf = val / POSI_360*360
         buf %= 360
         return self.angle_to_safetyangle(buf)
         
 
-    def angle_to_float(self, val: float):
+    def angle_to_pulse(self, val: float, unit = 'deg' ):
+        if unit == 'rad':
+            val *= RAD2DEG
         val %= 360
         buf = val * POSI_360/360        
         return int(buf)
     
-    def angle_to_safetyangle(self, val):
+    def angle_to_safetyangle(self, val, unit = 'deg' ):
+        if unit == 'rad':
+            val *= RAD2DEG
         if val >= 360:
             val -= 360
             return self.angle_to_safetyangle(val)
