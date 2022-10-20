@@ -16,3 +16,11 @@ wait_position:
   x: 500.0
   y: -100.0
   z: 300.0
+transform:
+  x: -34.0
+  y: -236.0
+  z: -20.0
+  rx: -90 #deg
+  ry: 90 #deg
+  rz: 0 #deg
+  

@@ -1,11 +1,11 @@
 Metadata-Version: 2.1
 Name: dynamixel-sdk
-Version: 3.7.31
-Summary: Dynamixel SDK 3. python package
-Home-page: https://github.com/ROBOTIS-GIT/DynamixelSDK
-Author: Leon Jung
-Author-email: rwjung@robotis.com
-License: Apache 2.0
+Version: 0.0.0
+Summary: Jeus arm control python package
+Home-page: https://github.com/Code-YMJ/Maunpulator_Unit_Test
+Author: Code.MJ
+Author-email: minjae8970@gmail.com
+License: None
 Platform: UNKNOWN
 License-File: LICENSE.txt
 

@@ -1,3 +1,4 @@
+
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
@@ -10,6 +11,7 @@ import os
 import sys
 import threading
 from jeus_armcontrol import *
+from jeus_vision import *
 import yaml
 from ui_jr_main_form import *
 
@@ -46,6 +48,7 @@ class transform_param():
     y : int = 0
     z : int = 0
     rx : int = 0
+    ry : int = 0
     rz : int = 0
 
 
@@ -53,6 +56,7 @@ class transform_param():
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
+        self.connect_vision_module()
         self.setupUi(self)
         self.show()
         self.setconfig()
@@ -60,6 +64,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.timer.start(100)
         self.timer.timeout.connect(self.get_current_positions)
         self.InUse =False
+
+    def connect_vision_module(self):
+        self.weight = 'weights/yolov5s.pt'
+        self.vision = jeus_vision()
+        self.vision.init_camera()
+        self.vision.init_yolo(self.weight)
 
 
     def connect_device(self):
@@ -103,13 +113,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.tbTargetPos_Y.setPlainText(str(target_pos[y]))
             self.tbTargetPos_Z.setPlainText(str(target_pos[z]))
 
-            # transforms_config = model_config[config_transform]
-            # self.transform_config = transform_param()
-            # self.transform_config.x = transforms_config[x]
-            # self.transform_config.y = transforms_config[y]
-            # self.transform_config.z = transforms_config[z]
-            # self.transform_config.rx = transforms_config['rx']
-            # self.transform_config.rz = transforms_config['rz']
+            transforms_config = model_config[config_transform]
+            self.transform_config = transform_param()
+            self.transform_config.x = transforms_config[x]
+            self.transform_config.y = transforms_config[y]
+            self.transform_config.z = transforms_config[z]
+            self.transform_config.rx = transforms_config['rx']*DEG2RAD
+            self.transform_config.ry = transforms_config['ry']*DEG2RAD
+            self.transform_config.rz = transforms_config['rz']*DEG2RAD
+            self.t = np.array([self.transform_config.x,self.transform_config.y,self.transform_config.z])
+            self.eul = np.array([self.transform_config.rx,self.transform_config.ry,self.transform_config.rz])
 
     def save(self):
         path =os.path.join(os.getcwd(),'Config','model_config.yaml')
@@ -163,10 +176,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # w.start()
         self.manupulator.move_joint(sender_idx,angle)
     def calculate_xyz(self):
-        x,y,z= self.manupulator.get_current_xyz()
-        self.tbCurrent_X.setPlainText(str(x))
-        self.tbCurrent_Y.setPlainText(str(y))
-        self.tbCurrent_Z.setPlainText(str(z))
+        try:
+            pc = np.array([float(self.tbCurrent_X.toPlainText()),float(self.tbCurrent_Y.toPlainText()),float(self.tbCurrent_Z.toPlainText())])
+            cal_pc = point_to_base(pc,self.t,self.eul)
+            cal_p = self.transform_coordinates(float(self.tbCurrent_X.toPlainText()),float(self.tbCurrent_Y.toPlainText()),float(self.tbCurrent_Z.toPlainText()))
+            x = round(cal_pc[0],3)
+            y = round(cal_pc[1],3)
+            z = round(cal_pc[2],3)
+            self.tbWaitPos_X.setPlainText(str(x))
+            self.tbWaitPos_Y.setPlainText(str(y))
+            self.tbWaitPos_Z.setPlainText(str(z))
+
+            
+            self.tbTargetPos_X.setPlainText(str(cal_p[0]))
+            self.tbTargetPos_Y.setPlainText(str(cal_p[1]))
+            self.tbTargetPos_Z.setPlainText(str(cal_p[2]))
+        except:
+            pass
 
 
     def move_J(self):        
@@ -208,11 +234,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def move_L(self):
         pass
     def sequence_push(self):
-        pass
+        result = self.vision.activate(target='person')
+        if result != None:
+            camera_x, camera_y, camera_z = result
+            self.tbCurrent_X.setPlainText(str(round(camera_x*1000,3)))
+            self.tbCurrent_Y.setPlainText(str(round(camera_y*1000,3)))
+            self.tbCurrent_Z.setPlainText(str(round(camera_z*1000,3)))
+        else:
+            self.tbCurrent_X.setPlainText('None')
+            self.tbCurrent_Y.setPlainText('None')
+            self.tbCurrent_Z.setPlainText('None')
+
     def sequence_init(self):
         pass
     def sequence_all(self):
         pass
+        
+
     def transform_coordinates(self,x,y,z):
         xyz = np.array([x,y,z])
         translate_vector = np.array([self.transform_config.x,self.transform_config.y,self.transform_config.z])

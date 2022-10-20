@@ -9,13 +9,13 @@ import numpy as np
 import traceback
 
 from jeus_armcontrol.jeus_log import *
-from models.experimental import attempt_load
-from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
-from utils.general import (LOGGER, apply_classifier, check_file, check_img_size, check_imshow, check_requirements,
-                           check_suffix, colorstr, increment_path, non_max_suppression, print_args, scale_coords,
+from .models.experimental import attempt_load
+from .utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
+from .utils.general import (LOGGER, apply_classifier, check_file, check_img_size, check_imshow, check_requirements,
+                           check_suffix, colorstr, increment_path, non_max_suppression, print_args, scale_boxes,
                            strip_optimizer, xyxy2xywh)
-from utils.plots import Annotator, colors, save_one_box
-from utils.torch_utils import load_classifier, select_device, time_sync
+from .utils.plots import Annotator, colors, save_one_box
+from .utils.torch_utils import select_device, time_sync
 
 def plot_one_box(x, img, color=None, label=None, line_thickness=3):
     # Plots one bounding box on image img
@@ -109,17 +109,18 @@ def detect(device, model, img_raw: np.ndarray, names, colors,target,
 
     # Apply NMS
     pred = non_max_suppression(pred, conf_thres, iou_thres, classes=classes, agnostic=agnostic_nms)
-    gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
+    # gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
 
     # Visualization
     det = pred[0]
-    if isVisualized: im0 = img0[0].copy()
+    im0 = img0[0].copy()
+    # if isVisualized: im0 = img0[0].copy()
     #print("im0_shpape:", im0.shape)
     send_data = None
     
     if len(det):
         # Rescale boxes from img_size to im0 size
-        det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
+        det[:, :4] = scale_boxes(img.shape[2:], det[:, :4], im0.shape).round()
 
         # Write results
         for *xyxy, conf, cls in reversed(det):
