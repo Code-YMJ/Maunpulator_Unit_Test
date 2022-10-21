@@ -1,7 +1,11 @@
 import pyrealsense2 as rs
 import numpy as np
 import cv2
-from .detect_btn import *
+try:
+    from .detect_btn import *
+except:
+    from jeus_vision import *
+
 import os
 
 SHARE_DIR = os.getcwd()
@@ -50,7 +54,7 @@ class jeus_vision():
         self.device = ''
         weight_path =  os.path.join(SHARE_DIR,weight)
         # Initialize
-        self.device = select_device(self.device)
+        self.device =  select_device(self.device)
         # Load model
         self.model = attempt_load(weight_path, device=self.device)  # load FP32 model
         # Get names and colors
@@ -84,7 +88,7 @@ class jeus_vision():
             
             result = detect(self.device, self.model, img_color, self.names, self.colors, target,
                             imgsz=list(img_color.shape[0:2]), conf_thres=0.4, iou_thres=0.45, isVisualized=False)
-            # current_time = time.time_ns() - start_time
+            current_time = time.time_ns() - start_time
             try_count += 1
             if result != None:
 
@@ -115,11 +119,11 @@ class jeus_vision():
                 rv = (np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2]))
                 is_done = True
                 
-            # elif current_time > time_out:
-            #     is_done = True
-                
-            elif try_count > 20:
+            elif current_time > time_out:
                 is_done = True
+                
+            # elif try_count > 20:
+            #     is_done = True
             
 
         self.pipeline.stop()
@@ -151,9 +155,9 @@ class jeus_vision():
             
             
             result = detect(self.device, self.model, img_color, self.names, self.colors, target,
-                            imgsz=list(img_color.shape[0:2]), conf_thres=0.4, iou_thres=0.45, isVisualized=True)
-            # current_time = time.time_ns() - start_time
-            try_count += 1
+                            imgsz=list(img_color.shape[0:2]), conf_thres=0.25, iou_thres=0.45, isVisualized=True)
+            current_time = time.time_ns() - start_time
+            # try_count += 1
             if result != None:
 
                 # Intrinsics & Extrinsics
@@ -181,13 +185,13 @@ class jeus_vision():
                 i = 640*result[1]+result[0]
                 print ('depth: ',[np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2])])
                 rv = (np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2]))
-                # is_done = True
-                
-            # elif current_time > time_out:
-            #     is_done = True
-                
-            elif try_count > 500:
                 is_done = True
+                
+            elif current_time > time_out:
+                is_done = True
+                
+            # elif try_count > 500:
+            #     is_done = True
             
 
         # self.pipeline.stop()

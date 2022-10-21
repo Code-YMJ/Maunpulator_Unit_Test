@@ -13,7 +13,7 @@ import threading
 from jeus_armcontrol import *
 from jeus_vision import *
 import yaml
-from ui_jr_main_form import *
+from jeus_ui.ui_jr_main_form import *
 
 config_init_posi = 'init_position'
 config_safety_posi = 'safety_position'
@@ -118,11 +118,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.transform_config.x = transforms_config[x]
             self.transform_config.y = transforms_config[y]
             self.transform_config.z = transforms_config[z]
-            self.transform_config.rx = transforms_config['rx']*DEG2RAD
-            self.transform_config.ry = transforms_config['ry']*DEG2RAD
-            self.transform_config.rz = transforms_config['rz']*DEG2RAD
+            self.transform_config.rx = transforms_config['rx']
+            self.transform_config.ry = transforms_config['ry']
+            self.transform_config.rz = transforms_config['rz']
             self.t = np.array([self.transform_config.x,self.transform_config.y,self.transform_config.z])
-            self.eul = np.array([self.transform_config.rx,self.transform_config.ry,self.transform_config.rz])
+            self.eul = np.array([self.transform_config.rx*DEG2RAD,self.transform_config.ry*DEG2RAD,self.transform_config.rz*DEG2RAD])
 
     def save(self):
         path =os.path.join(os.getcwd(),'Config','model_config.yaml')
@@ -130,6 +130,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             { config_init_posi:{joint_0:float(self.tbInitPos_0.toPlainText()),joint_1: float(self.tbInitPos_1.toPlainText()), joint_2: float(self.tbInitPos_2.toPlainText()), joint_3: float(self.tbInitPos_3.toPlainText())}  \
             , config_safety_posi:{joint_0:float(self.tbSafetyPos_0.toPlainText()),joint_1: float(self.tbSafetyPos_1.toPlainText()), joint_2: float(self.tbSafetyPos_2.toPlainText()), joint_3: float(self.tbSafetyPos_3.toPlainText())}  \
             , config_wait_posi:{x:float(self.tbWaitPos_X.toPlainText()), y:float(self.tbWaitPos_Y.toPlainText()), 'z': float(self.tbWaitPos_Z.toPlainText())}   \
+            , config_transform:{x:self.transform_config.x, y:self.transform_config.y, 'z': self.transform_config.z, 'rx': self.transform_config.rx, 'ry': self.transform_config.ry, 'rz': self.transform_config.rz}   \
              , config_target_posi:{'x':float(self.tbTargetPos_X.toPlainText()), 'y':float(self.tbTargetPos_Y.toPlainText()), 'z': float(self.tbTargetPos_Z.toPlainText()) }}
         with open(path,'w') as fileopen:
             yaml.dump(data,fileopen,default_flow_style=False)
@@ -179,18 +180,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             pc = np.array([float(self.tbCurrent_X.toPlainText()),float(self.tbCurrent_Y.toPlainText()),float(self.tbCurrent_Z.toPlainText())])
             cal_pc = point_to_base(pc,self.t,self.eul)
-            cal_p = self.transform_coordinates(float(self.tbCurrent_X.toPlainText()),float(self.tbCurrent_Y.toPlainText()),float(self.tbCurrent_Z.toPlainText()))
             x = round(cal_pc[0],3)
             y = round(cal_pc[1],3)
             z = round(cal_pc[2],3)
-            self.tbWaitPos_X.setPlainText(str(x))
+            self.tbWaitPos_X.setPlainText(str(x-30))
             self.tbWaitPos_Y.setPlainText(str(y))
             self.tbWaitPos_Z.setPlainText(str(z))
 
             
-            self.tbTargetPos_X.setPlainText(str(cal_p[0]))
-            self.tbTargetPos_Y.setPlainText(str(cal_p[1]))
-            self.tbTargetPos_Z.setPlainText(str(cal_p[2]))
+            self.tbTargetPos_X.setPlainText(str(x))
+            self.tbTargetPos_Y.setPlainText(str(y))
+            self.tbTargetPos_Z.setPlainText(str(z))
         except:
             pass
 
@@ -233,7 +233,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def move_L(self):
         pass
-    def sequence_push(self):
+    def sequence_DetectBtn(self):
         result = self.vision.activate(target='person')
         if result != None:
             camera_x, camera_y, camera_z = result
@@ -245,7 +245,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.tbCurrent_Y.setPlainText('None')
             self.tbCurrent_Z.setPlainText('None')
 
-    def sequence_init(self):
+    def sequence_PushBtn(self):
         pass
     def sequence_all(self):
         pass

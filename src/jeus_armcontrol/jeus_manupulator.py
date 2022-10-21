@@ -146,7 +146,7 @@ class jeus_maunpulator():
         paths : list
         # if move_mode == MoveMode.J_Move:
         #     self.get_J_path(joint_angle_current,joint_angle_target,0,1, 0.05)
-
+        
         # return
         if move_mode == MoveMode.J_Move:            
             self.move_joint_all(joint_angle_target,velo,True)

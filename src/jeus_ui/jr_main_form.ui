@@ -597,43 +597,69 @@
     <property name="title">
      <string>Sequence Box</string>
     </property>
-    <widget class="QPushButton" name="btnSeq_Push">
+    <widget class="QPushButton" name="btnSeq_SelectBtn">
      <property name="geometry">
       <rect>
        <x>30</x>
-       <y>50</y>
+       <y>70</y>
        <width>141</width>
        <height>81</height>
       </rect>
      </property>
      <property name="text">
-      <string>Push Button</string>
+      <string>Detect Button</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="btnSeq_Init">
+    <widget class="QPushButton" name="btnSeq_Pushbtn">
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>50</y>
+       <y>70</y>
        <width>141</width>
        <height>81</height>
       </rect>
      </property>
      <property name="text">
-      <string>Back to Init</string>
+      <string>Push Button Seq</string>
      </property>
     </widget>
     <widget class="QPushButton" name="btnSeq_All">
      <property name="geometry">
       <rect>
-       <x>330</x>
-       <y>50</y>
+       <x>450</x>
+       <y>70</y>
        <width>141</width>
        <height>81</height>
       </rect>
      </property>
      <property name="text">
       <string>All Sequence</string>
+     </property>
+    </widget>
+    <widget class="QPlainTextEdit" name="tbFloor">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>30</y>
+       <width>201</width>
+       <height>31</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbCurrent_Z_2">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>30</y>
+       <width>71</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Floor</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </widget>
@@ -1475,14 +1501,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>btnSeq_Push</sender>
+   <sender>btnSeq_SelectBtn</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>sequence_push()</slot>
+   <slot>sequence_DetectBtn()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>469</x>
-     <y>791</y>
+     <x>470</x>
+     <y>790</y>
     </hint>
     <hint type="destinationlabel">
      <x>459</x>
@@ -1491,10 +1517,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>btnSeq_Init</sender>
+   <sender>btnSeq_Pushbtn</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>sequence_init()</slot>
+   <slot>sequence_PushBtn()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>618</x>
@@ -1513,8 +1539,8 @@
    <slot>sequence_all()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>745</x>
-     <y>791</y>
+     <x>865</x>
+     <y>811</y>
     </hint>
     <hint type="destinationlabel">
      <x>746</x>
@@ -1625,8 +1651,8 @@
   <slot>move_J()</slot>
   <slot>move_L()</slot>
   <slot>save()</slot>
-  <slot>sequence_init()</slot>
-  <slot>sequence_push()</slot>
+  <slot>sequence_PushBtn()</slot>
+  <slot>sequence_DetectBtn()</slot>
   <slot>sequence_all()</slot>
   <slot>torque_onoff()</slot>
   <slot>calculate_xyz()</slot>

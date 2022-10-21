@@ -231,6 +231,34 @@ def angle_to_safetyangle( val):
         val+=360
         return angle_to_safetyangle(val)
 
+# def point_to_base(pc, t, eul):
+#     """
+#     pc : position vector of object in camera coord
+#     t : position from base coord to camera coord written in base coord
+#     eul : rotation vector from base coord to camera coord written in base coord
+#     """
+
+#     R = rotx(eul[0]) @ roty(eul[1]) @ rotz(eul[2])
+
+#     T = np.eye(4)
+#     T[0:3,0:3] = R
+#     T[0:3,3] = t
+
+
+
+#     if 1:
+#         Tp = np.eye(4)
+#         Tp[0:3,3] = pc
+#         Tb = inv_tform(T)@Tp
+#         # Tb = inv_tform(T)@Tp
+#         Tb = inv_tform(Tp) @ inv_tform(T)
+#         pb = Tb[0:3,3]
+#     else:
+#         pb = -(R.T @ t + pc)
+
+#     return pb
+
+    
 def point_to_base(pc, t, eul):
     """
     pc : position vector of object in camera coord
@@ -238,25 +266,12 @@ def point_to_base(pc, t, eul):
     eul : rotation vector from base coord to camera coord written in base coord
     """
 
-    R = rotx(eul[0]) @ roty(eul[1]) @ rotz(eul[2])
+    R = rotx(-eul[0]) @ roty(-eul[1]) @ rotz(-eul[2])
+    T1 = R@pc
+    Tp = T1 + t
 
-    T = np.eye(4)
-    T[0:3,0:3] = R
-    T[0:3,3] = t
+    return Tp
 
-
-
-    if 1:
-        Tp = np.eye(4)
-        Tp[0:3,3] = pc
-        Tb = inv_tform(T)@Tp
-        # Tb = inv_tform(T)@Tp
-        Tb = inv_tform(Tp) @ inv_tform(T)
-        pb = Tb[0:3,3]
-    else:
-        pb = -(R.T @ t + pc)
-
-    return pb
 
 def inv_tform(T: np.ndarray):
     """ Compute invese matrix of a transformation matrix in SE(3)
