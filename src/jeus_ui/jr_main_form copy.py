@@ -10,7 +10,7 @@ from PySide6.QtCore import *
 import os
 from dataclasses import dataclass
 import threading
-from jeus_armcontrol import  jeus_manupulator_refactory,jeus_kinematictool
+from jeus_armcontrol import  jeus_manupulator,jeus_kinematictool,jeus_dynamixel,jeus_tranform
 from jeus_vision import *
 import yaml
 from jeus_ui.ui_jr_main_form import *
@@ -75,12 +75,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def connect_device(self):
         if not hasattr(self, 'IsConnect') or not self.IsConnect or not self.InUse :
             self.btnConnect.setText('connectting')
-            self.manupulator = jeus_manupulator_refactory.jeus_maunpulator_test()
+            self.manupulator = jeus_manupulator.jeus_maunpulator()
             self.manupulator.get_param_value(os.path.join(os.getcwd(),'Config'),'arm_config.yaml')
             if self.manupulator.generate_module():
                 self.IsConnect = True
                 self.btnConnect.setText('connected')
-                self.manupulator.Torque_ON()
+                self.manupulator.torque_on()
         else:
             self.IsConnect = False
             self.manupulator.disconnect()
@@ -138,23 +138,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def get_current_positions(self):
         if hasattr(self, 'manupulator') and self.IsConnect:
-            positions = self.manupulator.get_pos()
-            if positions != None:
-                sorted_keys = sorted(positions.keys())
+            positions = self.manupulator.get_current_joint_pos()
+            key_hard = sorted(positions.keys())
 
-                self.tbCurrentPosJoint1.setPlainText(str(round(positions[sorted_keys[0]], 3)))
-                self.tbCurrentPosJoint2.setPlainText(str(round(positions[sorted_keys[1]], 3)))
-                self.tbCurrentPosJoint3.setPlainText(str(round(positions[sorted_keys[2]], 3)))
-                self.tbCurrentPosJoint4.setPlainText(str(round(positions[sorted_keys[3]], 3)))
+            self.tbCurrentPosJoint1.setPlainText(str(round(positions[key_hard[0]], 3)))
+            self.tbCurrentPosJoint2.setPlainText(str(round(positions[key_hard[1]], 3)))
+            self.tbCurrentPosJoint3.setPlainText(str(round(positions[key_hard[2]], 3)))
+            self.tbCurrentPosJoint4.setPlainText(str(round(positions[key_hard[3]], 3)))
 
 
     def torque_onoff(self):
         sender = self.sender()        
         sender_idx = int(sender.objectName().split('_')[1])
         if self.manupulator.get_torque_status(sender_idx):
-            self.manupulator.Torque_OFF(sender_idx)
+            self.manupulator.torque_off(sender_idx)
         else:
-            self.manupulator.Torque_ON(sender_idx)
+            self.manupulator.torque_on(sender_idx)
 
     def move_joint(self):
         sender = self.sender()        
@@ -172,12 +171,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             print(f'move_joint error : index {sender_idx}')
             return
         if not self.manupulator.get_torque_status(sender_idx):
-            print(f'Error : Joint {int(sender_idx)+1} torque off')
+            print(f'Error : Joint {sender_idx} torque off')
             return
         # w = worker(self,self.manupulator.move_joint,sender_idx,angle)
         # w.start()
-        self.manupulator.MoveJoint(sender_idx,angle)
-
+        self.manupulator.move_joint(sender_idx,angle)
     def calculate_xyz(self):
         try:
             pc = np.array([float(self.tbCurrent_X.toPlainText()),float(self.tbCurrent_Y.toPlainText()),float(self.tbCurrent_Z.toPlainText())])
@@ -221,14 +219,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             x = float(self.tbWaitPos_X.toPlainText())
             y = float(self.tbWaitPos_Y.toPlainText())
             z = float(self.tbWaitPos_Z.toPlainText())
-            self.manupulator.move_point(jeus_manupulator_refactory.MoveMode.J_Move, x, y, z)
+            self.manupulator.move_point(jeus_manupulator.MoveMode.J_Move, x, y, z)
             # joint_angles = self.manupulator.point2Angle(MoveMode.J_Move, x, y, z)
 
         elif sender_name == self.btnMoveTargetPos_J.objectName():
             x = float(self.tbTargetPos_X.toPlainText())
             y = float(self.tbTargetPos_Y.toPlainText())
             z = float(self.tbTargetPos_Z.toPlainText())
-            self.manupulator.move_point(jeus_manupulator_refactory.MoveMode.J_Move, x, y, z)
+            self.manupulator.move_point(jeus_manupulator.MoveMode.J_Move, x, y, z)
         else:
             return
         self.InUse =False
@@ -252,6 +250,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def sequence_all(self):
         pass
         
+
+    def transform_coordinates(self,x,y,z):
+        xyz = np.array([x,y,z])
+        translate_vector = np.array([self.transform_config.x,self.transform_config.y,self.transform_config.z])
+        ix = np.linalg.inv(jeus_kinematictool.rotx(self.transform_config.rx))
+        iz = np.linalg.inv(jeus_kinematictool.rotx(self.transform_config.rz))
+        rotate_vector = iz@ix
+        rv = rotate_vector@(xyz-translate_vector)
+        return rv
+
+        
+
 
 app = QApplication([])
 ex = MainWindow()

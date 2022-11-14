@@ -1,16 +1,16 @@
 init_position:
   joint_0: 180.0
-  joint_1: 272.0
+  joint_1: 180.0
   joint_2: 92.0
   joint_3: 359.0
 safety_position:
   joint_0: 180.0
-  joint_1: 178.0
+  joint_1: 90.0
   joint_2: 100.0
   joint_3: 238.0
 target_position:
-  x: 301.0
-  y: -114.093
+  x: 490.0
+  y: 100.0
   z: 319.027
 transform:
   rx: 90
@@ -20,6 +20,6 @@ transform:
   y: -236.0
   z: 18.0
 wait_position:
-  x: 271.0
-  y: -114.093
+  x: 480.0
+  y: 100.0
   z: 319.027

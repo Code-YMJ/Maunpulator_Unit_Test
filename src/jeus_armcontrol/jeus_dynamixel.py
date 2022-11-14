@@ -7,7 +7,7 @@ import time
 import sys
 
 from jeus_armcontrol.jeus_kinematictool import RAD2DEG
-from .jeus_log import *
+from .jeus_log import jeus_log
 
 
 ctl_table = {}
@@ -99,8 +99,9 @@ OPR_MODE_CURR_POSI_CTL  = 5   # current based position control
 OPR_MODE_PWM_CTL        = 16  # PWM direct control 
 
 DXL_POSI_TOL = 10        # Dynamixel moving status threshold
-POSI_360 = 4095
+POSI_360 = 4096
 UINT_MAX = 4294967296    # 2^32
+
 @dataclass
 class joint_move_param:
     p_gain : int = 0
@@ -329,65 +330,6 @@ class mot_manipulator:
         #         time.sleep(0.005)
         return True
 
-
-    def move_multi_joint(self, idx : list[int], angle :  list[int], vel= 20, monitor_on = True) -> bool:
-        addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']
-        len_cur_posi = ctl_table['ADDR_PRES_POSI']['size']
-        # goalPosi = np.array(angle)*POSI_360/360 
-        # goalPosi = self.angle_to_float(np.array(angle))
-        # goalPosi = [self.angle_to_float(angle[i]) for i in range(len(angle))]
-        n = len(idx)
-        # arrive_inposition = [False for i in range(n)]
-        self.log.Info(f"Start Move : [{angle}]")
-
-
-        if not type(vel) is list:
-            vel_buf = [vel for i in range(n)]
-        else:
-            vel_buf = vel
-        if n != len(angle):
-            self.log.Error('move_all_joint Fail : idx length error')
-        for i in range(n):  
-            self.log.Info(f'{idx[i]},p gain {self.module_param[idx[i]].p_gain}, i gain {self.module_param[idx[i]].i_gain}, d gain {self.module_param[idx[i]].d_gain}, f1 0, f2 0, vel {vel_buf[i]}, 1, False')
-            if not self.writeParam(idx[i], self.module_param[idx[i]].p_gain, self.module_param[idx[i]].i_gain, self.module_param[idx[i]].d_gain, 0, 0, vel_buf[i], 1, False):
-                return False
-            self.set_goal_position(idx[i], self.angle_to_pulse(angle[i]), False)
-
-            
-        return True
-    def move_multi_joint_test(self, idx : list[int], angle :  list[int], vel= 20, monitor_on = True) -> bool:
-        addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']
-        len_cur_posi = ctl_table['ADDR_PRES_POSI']['size']
-        # goalPosi = np.array(angle)*POSI_360/360 
-        # goalPosi = self.angle_to_float(np.array(angle))
-        # goalPosi = [self.angle_to_float(angle[i]) for i in range(len(angle))]
-        n = len(idx)
-        # arrive_inposition = [False for i in range(n)]
-        self.log.Info(f"Start Move : {angle}")
-
-        if type(vel) is int:
-            vel_buf = [vel for i in range(n)]
-        else:
-            vel_buf = vel
-        self.log.Info(f"velo set : {vel_buf}")
-        if n != len(angle):
-            self.log.Error('move_all_joint Fail : idx length error')
-        for i in range(n): 
-            self.log.Info(f'{idx[i]},p gain {self.module_param[idx[i]].p_gain}, i gain {self.module_param[idx[i]].i_gain}, d gain {self.module_param[idx[i]].d_gain}, f1 0, f2 0, vel {vel_buf[i]}, 1, False')
-            if not self.writeParam(idx[i], self.module_param[idx[i]].p_gain, self.module_param[idx[i]].i_gain, self.module_param[idx[i]].d_gain, 0, 0, int(vel_buf[i]), 1, False):
-                return False
-        for i in range(n): 
-            angle_int = self.angle_to_pulse(angle[i])
-            self.log.Error(f'joint [{i}] : {angle_int}')
-
-            param_goal_position = [DXL_LOBYTE(DXL_LOWORD(angle_int)), DXL_HIBYTE(DXL_LOWORD(angle_int)), DXL_LOBYTE(DXL_HIWORD(angle_int)), DXL_HIBYTE(DXL_HIWORD(angle_int))]
-            dxl_addparam_result = self.groupSyncWrite.addParam(idx[i], param_goal_position)
-            if dxl_addparam_result != True:
-                print("[ID:%03d] groupSyncWrite addparam failed" % idx[i]) 
-            
-        dxl_comm_result = self.groupSyncWrite.txPacket()
-        self.groupSyncWrite.clearParam()        
-        return True
 
     def move_multi_sync_joint(self, idx : list[int], angle :  list[int], vel= 20, monitor_on = True) -> bool:
         addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']

@@ -1,3 +1,3 @@
 import numpy as np
-from jeus_kinematictool import *
+from .jeus_kinematictool import *
 
