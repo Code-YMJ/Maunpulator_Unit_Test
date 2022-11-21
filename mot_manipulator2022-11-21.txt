@@ -1,0 +1,116 @@
+[INFO] (2022-11-21 10:06:32,210) > Succeeded to set groupSyncWrite
+[INFO] (2022-11-21 10:06:32,210) > Succeeded to set groupSyncRead
+[INFO] (2022-11-21 10:06:32,228) > Succeeded to open the port
+[INFO] (2022-11-21 10:06:32,361) > Succeeded to change the baudrate
+[ERROR] (2022-11-21 10:06:32,398) > [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,435) > [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,471) > [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,508) > [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,545) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,581) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,617) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,652) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,746) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,782) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,818) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,854) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:32,971) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,007) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,043) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,079) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,191) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,227) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,262) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,298) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,396) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,432) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,467) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,502) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,616) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,652) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,688) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,724) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,838) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,874) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,910) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:33,946) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,060) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,095) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,131) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,167) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,276) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,311) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,346) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,382) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,497) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,533) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,569) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,605) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,716) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,751) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,787) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,823) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,937) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:34,973) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:35,009) > ERR: [TxRxResult] There is no status packet!
+[ERROR] (2022-11-21 10:06:35,045) > ERR: [TxRxResult] There is no status packet!
+[INFO] (2022-11-21 10:07:13,842) > Succeeded to set groupSyncWrite
+[INFO] (2022-11-21 10:07:13,843) > Succeeded to set groupSyncRead
+[INFO] (2022-11-21 10:07:13,860) > Succeeded to open the port
+[INFO] (2022-11-21 10:07:13,993) > Succeeded to change the baudrate
+[INFO] (2022-11-21 10:07:14,008) > id:11, torque True
+[INFO] (2022-11-21 10:07:14,024) > id:12, torque True
+[INFO] (2022-11-21 10:07:14,040) > id:13, torque True
+[INFO] (2022-11-21 10:07:14,056) > id:14, torque True
+[INFO] (2022-11-21 10:08:12,440) > velo set : [100, 100, 100, 100]
+[INFO] (2022-11-21 10:08:12,441) > 11,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:08:12,549) > 12,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:08:12,661) > 13,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:08:12,773) > 14,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:08:12,885) > joint [0] : 2047
+[INFO] (2022-11-21 10:08:12,886) > joint [1] : 2024
+[INFO] (2022-11-21 10:08:12,887) > joint [2] : 1137
+[INFO] (2022-11-21 10:08:12,888) > joint [3] : 2707
+[INFO] (2022-11-21 10:08:12,889) > Start Move : 2707
+[INFO] (2022-11-21 10:09:03,244) > Succeeded to set groupSyncWrite
+[INFO] (2022-11-21 10:09:03,244) > Succeeded to set groupSyncRead
+[INFO] (2022-11-21 10:09:03,262) > Succeeded to open the port
+[INFO] (2022-11-21 10:09:03,394) > Succeeded to change the baudrate
+[INFO] (2022-11-21 10:09:03,409) > id:11, torque True
+[INFO] (2022-11-21 10:09:03,425) > id:12, torque True
+[INFO] (2022-11-21 10:09:03,441) > id:13, torque True
+[INFO] (2022-11-21 10:09:03,457) > id:14, torque True
+[INFO] (2022-11-21 10:09:10,662) > velo set : [100.0, 8.357852978977514, 46.459393745432436, 60.24306223783774]
+[INFO] (2022-11-21 10:09:10,662) > 11,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100.0, 1, False
+[INFO] (2022-11-21 10:09:10,769) > 12,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 8.357852978977514, 1, False
+[INFO] (2022-11-21 10:09:10,881) > 13,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 46.459393745432436, 1, False
+[INFO] (2022-11-21 10:09:10,993) > 14,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 60.24306223783774, 1, False
+[INFO] (2022-11-21 10:09:11,105) > joint [0] : 2307
+[INFO] (2022-11-21 10:09:11,106) > joint [1] : 1826
+[INFO] (2022-11-21 10:09:11,106) > joint [2] : 1177
+[INFO] (2022-11-21 10:09:11,107) > joint [3] : 3172
+[INFO] (2022-11-21 10:09:11,108) > Start Move : 3172
+[INFO] (2022-11-21 10:09:18,163) > velo set : [100, 100, 100, 100]
+[INFO] (2022-11-21 10:09:18,164) > 11,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:09:18,272) > 12,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:09:18,384) > 13,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:09:18,496) > 14,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:09:18,608) > joint [0] : 2047
+[INFO] (2022-11-21 10:09:18,609) > joint [1] : 2024
+[INFO] (2022-11-21 10:09:18,610) > joint [2] : 1137
+[INFO] (2022-11-21 10:09:18,611) > joint [3] : 2707
+[INFO] (2022-11-21 10:09:18,612) > Start Move : 2707
+[INFO] (2022-11-21 10:09:57,907) > velo set : [100, 100, 100, 100]
+[INFO] (2022-11-21 10:09:57,908) > 11,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:09:58,014) > 12,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:09:58,126) > 13,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:09:58,238) > 14,p gain 200, i gain 1, d gain 2000, f1 0, f2 0, vel 100, 1, False
+[INFO] (2022-11-21 10:09:58,350) > joint [0] : 2047
+[INFO] (2022-11-21 10:09:58,351) > joint [1] : 3094
+[INFO] (2022-11-21 10:09:58,352) > joint [2] : 1046
+[INFO] (2022-11-21 10:09:58,353) > joint [3] : 4083
+[INFO] (2022-11-21 10:09:58,353) > Start Move : 4083
+[INFO] (2022-11-21 10:10:06,334) > id:11, torque False
+[INFO] (2022-11-21 10:10:06,701) > id:12, torque False
+[INFO] (2022-11-21 10:10:07,101) > id:13, torque False
+[INFO] (2022-11-21 10:10:07,533) > id:14, torque False

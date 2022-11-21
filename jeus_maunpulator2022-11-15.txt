@@ -1,0 +1,178 @@
+[INFO] (2022-11-15 09:44:40,601) > 4
+[INFO] (2022-11-15 09:44:40,602) > Joint_00
+[INFO] (2022-11-15 09:44:40,603) > Joint_01
+[INFO] (2022-11-15 09:44:40,604) > Joint_02
+[INFO] (2022-11-15 09:44:40,605) > Joint_03
+[INFO] (2022-11-15 09:44:40,838) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 09:44:40,854) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 09:44:40,870) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 09:44:40,886) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 09:45:23,212) > 14 is Torque Off [result] : True
+[INFO] (2022-11-15 09:45:26,236) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 09:49:19,734) > 11 is Torque Off [result] : True
+[INFO] (2022-11-15 09:49:20,407) > 12 is Torque Off [result] : True
+[INFO] (2022-11-15 09:49:20,950) > 13 is Torque Off [result] : True
+[INFO] (2022-11-15 09:49:21,623) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 09:49:26,950) > 14 is Torque Off [result] : True
+[INFO] (2022-11-15 09:49:30,420) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 09:49:31,747) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 09:49:32,964) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 09:53:36,032) > 4
+[INFO] (2022-11-15 09:53:36,033) > Joint_00
+[INFO] (2022-11-15 09:53:36,034) > Joint_01
+[INFO] (2022-11-15 09:53:36,035) > Joint_02
+[INFO] (2022-11-15 09:53:36,036) > Joint_03
+[INFO] (2022-11-15 09:53:36,268) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 09:53:36,284) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 09:53:36,300) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 09:53:36,316) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 10:39:59,963) > 4
+[INFO] (2022-11-15 10:39:59,964) > Joint_00
+[INFO] (2022-11-15 10:39:59,966) > Joint_01
+[INFO] (2022-11-15 10:39:59,966) > Joint_02
+[INFO] (2022-11-15 10:39:59,967) > Joint_03
+[INFO] (2022-11-15 10:40:00,198) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 10:40:00,214) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 10:40:00,230) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 10:40:00,246) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 10:45:59,692) > 4
+[INFO] (2022-11-15 10:45:59,692) > Joint_00
+[INFO] (2022-11-15 10:45:59,698) > Joint_01
+[INFO] (2022-11-15 10:45:59,699) > Joint_02
+[INFO] (2022-11-15 10:45:59,699) > Joint_03
+[INFO] (2022-11-15 10:45:59,936) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 10:45:59,951) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 10:45:59,967) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 10:45:59,983) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 10:49:25,407) > 4
+[INFO] (2022-11-15 10:49:25,408) > Joint_00
+[INFO] (2022-11-15 10:49:25,409) > Joint_01
+[INFO] (2022-11-15 10:49:25,410) > Joint_02
+[INFO] (2022-11-15 10:49:25,410) > Joint_03
+[INFO] (2022-11-15 10:49:25,642) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 10:49:25,658) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 10:49:25,674) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 10:49:25,690) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 10:50:33,831) > 4
+[INFO] (2022-11-15 10:50:33,832) > Joint_00
+[INFO] (2022-11-15 10:50:33,833) > Joint_01
+[INFO] (2022-11-15 10:50:33,834) > Joint_02
+[INFO] (2022-11-15 10:50:33,834) > Joint_03
+[INFO] (2022-11-15 10:50:34,194) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 10:50:34,210) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 10:50:34,227) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 10:50:34,242) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 10:51:33,778) > 4
+[INFO] (2022-11-15 10:51:33,779) > Joint_00
+[INFO] (2022-11-15 10:51:33,780) > Joint_01
+[INFO] (2022-11-15 10:51:33,780) > Joint_02
+[INFO] (2022-11-15 10:51:33,781) > Joint_03
+[INFO] (2022-11-15 10:51:34,140) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 10:51:34,156) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 10:51:34,172) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 10:51:34,188) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 10:51:43,716) > angle_adjust [180.0, 180.0, 100.0, 238.0]
+[INFO] (2022-11-15 10:52:28,552) > 4
+[INFO] (2022-11-15 10:52:28,552) > Joint_00
+[INFO] (2022-11-15 10:52:28,559) > Joint_01
+[INFO] (2022-11-15 10:52:28,560) > Joint_02
+[INFO] (2022-11-15 10:52:28,561) > Joint_03
+[INFO] (2022-11-15 10:52:28,924) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 10:52:28,940) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 10:52:28,956) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 10:52:28,972) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 10:52:35,813) > angle_adjust [180.0, 180.0, 100.0, 238.0]
+[INFO] (2022-11-15 10:53:39,758) > angle_adjust [180.0, 270.0, 90.0, 359.0]
+[INFO] (2022-11-15 10:54:38,879) > 4
+[INFO] (2022-11-15 10:54:38,880) > Joint_00
+[INFO] (2022-11-15 10:54:38,881) > Joint_01
+[INFO] (2022-11-15 10:54:38,881) > Joint_02
+[INFO] (2022-11-15 10:54:38,882) > Joint_03
+[INFO] (2022-11-15 10:54:39,241) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 10:54:39,257) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 10:54:39,273) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 10:54:39,289) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 10:54:43,107) > angle_adjust [180.0, 180.0, 100.0, 238.0]
+[INFO] (2022-11-15 10:55:08,033) > angle_adjust [180.0, 180.0, 100.0, 238.0]
+[INFO] (2022-11-15 10:55:19,344) > angle_adjust [180.0, 270.0, 90.0, 359.0]
+[INFO] (2022-11-15 10:56:28,269) > 4
+[INFO] (2022-11-15 10:56:28,270) > Joint_00
+[INFO] (2022-11-15 10:56:28,271) > Joint_01
+[INFO] (2022-11-15 10:56:28,272) > Joint_02
+[INFO] (2022-11-15 10:56:28,273) > Joint_03
+[INFO] (2022-11-15 10:56:28,504) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 10:56:28,520) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 10:56:28,536) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 10:56:28,552) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 10:56:30,130) > angle_adjust [180.0, 180.0, 100.0, 238.0]
+[INFO] (2022-11-15 10:56:47,504) > angle_adjust [180.0, 270.0, 90.0, 359.0]
+[INFO] (2022-11-15 10:56:57,103) > angle_adjust [180.0, 180.0, 100.0, 238.0]
+[INFO] (2022-11-15 10:57:04,736) > angle_adjust [180.0, 270.0, 90.0, 359.0]
+[INFO] (2022-11-15 10:57:17,917) > angle_adjust [180.0, 180.0, 100.0, 238.0]
+[INFO] (2022-11-15 10:57:27,116) > angle_adjust [180.0, 270.0, 90.0, 359.0]
+[INFO] (2022-11-15 10:57:34,784) > angle_adjust [180.0, 180.0, 100.0, 238.0]
+[INFO] (2022-11-15 10:57:51,033) > angle_adjust [180.0, 270.0, 90.0, 359.0]
+[INFO] (2022-11-15 11:00:02,980) > 4
+[INFO] (2022-11-15 11:00:02,981) > Joint_00
+[INFO] (2022-11-15 11:00:02,982) > Joint_01
+[INFO] (2022-11-15 11:00:02,983) > Joint_02
+[INFO] (2022-11-15 11:00:02,984) > Joint_03
+[INFO] (2022-11-15 11:00:03,342) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 11:00:03,358) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 11:00:03,374) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 11:00:03,390) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 11:00:07,912) > angle_adjust [180.0, 180.0, 100.0, 238.0]
+[INFO] (2022-11-15 11:00:19,847) > angle_adjust [180.0, 270.0, 90.0, 359.0]
+[INFO] (2022-11-15 11:06:39,262) > 4
+[INFO] (2022-11-15 11:06:39,262) > Joint_00
+[INFO] (2022-11-15 11:06:39,263) > Joint_01
+[INFO] (2022-11-15 11:06:39,265) > Joint_02
+[INFO] (2022-11-15 11:06:39,266) > Joint_03
+[INFO] (2022-11-15 11:06:39,625) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 11:06:39,641) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 11:06:39,657) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 11:06:39,673) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 11:53:14,007) > 4
+[INFO] (2022-11-15 11:53:14,008) > Joint_00
+[INFO] (2022-11-15 11:53:14,009) > Joint_01
+[INFO] (2022-11-15 11:53:14,010) > Joint_02
+[INFO] (2022-11-15 11:53:14,011) > Joint_03
+[INFO] (2022-11-15 11:53:14,371) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 11:53:14,387) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 11:53:14,403) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 11:53:14,419) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 11:53:31,499) > angle_adjust [180.0, 180.0, 100.0, 238.0]
+[INFO] (2022-11-15 11:53:59,642) > angle_adjust [180.0, 270.0, 90.0, 359.0]
+[INFO] (2022-11-15 11:54:09,225) > angle_adjust [180.0, 195.0, 110.0, 238.0]
+[INFO] (2022-11-15 11:54:33,608) > angle_adjust [180.0, 270.0, 90.0, 359.0]
+[INFO] (2022-11-15 11:54:42,759) > angle_adjust [180.0, 195.0, 110.0, 238.0]
+[INFO] (2022-11-15 11:54:52,167) > angle_adjust [180.0, 270.0, 90.0, 359.0]
+[INFO] (2022-11-15 14:02:09,086) > 4
+[INFO] (2022-11-15 14:02:09,087) > Joint_00
+[INFO] (2022-11-15 14:02:09,088) > Joint_01
+[INFO] (2022-11-15 14:02:09,089) > Joint_02
+[INFO] (2022-11-15 14:02:09,090) > Joint_03
+[INFO] (2022-11-15 14:02:09,449) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 14:02:09,465) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 14:02:09,481) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 14:02:09,497) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 14:02:31,094) > 4
+[INFO] (2022-11-15 14:02:31,095) > Joint_00
+[INFO] (2022-11-15 14:02:31,096) > Joint_01
+[INFO] (2022-11-15 14:02:31,097) > Joint_02
+[INFO] (2022-11-15 14:02:31,097) > Joint_03
+[INFO] (2022-11-15 14:02:31,455) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 14:02:31,472) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 14:02:31,488) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 14:02:31,504) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 14:02:42,399) > 14 is Torque Off [result] : True
+[INFO] (2022-11-15 14:03:03,231) > 14 is Torque On [result] : True
+[INFO] (2022-11-15 14:14:30,044) > 4
+[INFO] (2022-11-15 14:14:30,046) > Joint_00
+[INFO] (2022-11-15 14:14:30,047) > Joint_01
+[INFO] (2022-11-15 14:14:30,048) > Joint_02
+[INFO] (2022-11-15 14:14:30,049) > Joint_03
+[INFO] (2022-11-15 14:14:30,407) > 11 is Torque On [result] : True
+[INFO] (2022-11-15 14:14:30,423) > 12 is Torque On [result] : True
+[INFO] (2022-11-15 14:14:30,439) > 13 is Torque On [result] : True
+[INFO] (2022-11-15 14:14:30,455) > 14 is Torque On [result] : True
