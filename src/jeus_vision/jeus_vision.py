@@ -86,6 +86,7 @@ class jeus_vision():
             img_depth: np.ndarray = np.asanyarray(depth_frame.get_data())
             
             
+            cvt_np = np.zeros((300, 300, 3), np.uint8)
             result = detect(self.device, self.model, img_color, self.names, self.colors, target,
                             imgsz=list(img_color.shape[0:2]), conf_thres=0.4, iou_thres=0.45, isVisualized=False)
             current_time = time.time_ns() - start_time

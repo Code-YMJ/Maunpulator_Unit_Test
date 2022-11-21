@@ -2,3 +2,5 @@
 **/dist
 **/tests
 **/**.egg-info
+**/jeus_maunpulator**.txt
+**/mot_manipulator**.txt

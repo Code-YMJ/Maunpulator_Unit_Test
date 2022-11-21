@@ -1,3 +1,6 @@
+import sys
+import warnings
+# import pywinauto
 
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
@@ -12,8 +15,11 @@ from dataclasses import dataclass
 import threading
 from jeus_armcontrol import  jeus_manupulator_refactory,jeus_kinematictool
 from jeus_vision import *
+
 import yaml
 from jeus_ui.ui_jr_main_form import *
+
+
 
 config_init_posi = 'init_position'
 config_safety_posi = 'safety_position'
@@ -60,8 +66,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.show()
         self.setconfig()
+        # self.timer =  QTimer(self)
         self.timer = QTimer(self)
+        # self.timer.singleShot(100,self.get_current_positions)
         self.timer.start(100)
+        # self.
         self.timer.timeout.connect(self.get_current_positions)
         self.InUse =False
 
@@ -199,7 +208,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def move_J(self):        
         self.InUse =True
-        sender = self.sender()        
+        sender = self.sender()          
         sender_name = sender.objectName()
         if sender_name == self.btnMoveInitPos.objectName():
             joint_0 = float(self.tbInitPos_0.toPlainText())
@@ -207,7 +216,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             joint_2 = float(self.tbInitPos_2.toPlainText())
             joint_3 = float(self.tbInitPos_3.toPlainText())
             angles = [joint_0,joint_1,joint_2,joint_3]
-            self.manupulator.move_joint_all(angles ,100, False)
+            self.manupulator.MoveJoints(angles ,100, False)
 
         elif sender_name == self.btnMoveSafetyPos.objectName():
             joint_0 = float(self.tbSafetyPos_0.toPlainText())
@@ -215,13 +224,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             joint_2 = float(self.tbSafetyPos_2.toPlainText())
             joint_3 = float(self.tbSafetyPos_3.toPlainText())
             angles = [joint_0,joint_1,joint_2,joint_3]
-            self.manupulator.move_joint_all( angles ,100, False)
+            self.manupulator.MoveJoints( angles ,100, False)
         
         elif sender_name == self.btnMoveWaitPos.objectName():
             x = float(self.tbWaitPos_X.toPlainText())
             y = float(self.tbWaitPos_Y.toPlainText())
             z = float(self.tbWaitPos_Z.toPlainText())
-            self.manupulator.move_point(jeus_manupulator_refactory.MoveMode.J_Move, x, y, z)
+            self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.J_Move, x, y, z)
             # joint_angles = self.manupulator.point2Angle(MoveMode.J_Move, x, y, z)
 
         elif sender_name == self.btnMoveTargetPos_J.objectName():
@@ -252,8 +261,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def sequence_all(self):
         pass
         
+def main():
+    app = QApplication([])
+    ex = MainWindow()
+    QApplication.processEvents()
+    app.exec()
+    if hasattr(ex, 'manupulator'):
+        ex.manupulator.is_finish = True
+    sys.exit()
 
-app = QApplication([])
-ex = MainWindow()
-QApplication.processEvents()
-app.exec_()
+
+if __name__ == '__main__':
+    main()
