@@ -10,7 +10,7 @@ Joint:
     alpha: -90
     b: 0
     beta: 0
-    d: 76.5
+    d: 99
     theta: 0
     p_gain: 200
     i_gain: 1
@@ -24,7 +24,7 @@ Joint:
     offset_angle: 180
   Joint_01:
     index: 12
-    a: 474
+    a: 331.5
     alpha: 0
     b: 24
     beta: 0
@@ -39,10 +39,10 @@ Joint:
     min_ang: 10
     max_ang: 350
     inposition: 0.01
-    offset_angle: 183
+    offset_angle: 180
   Joint_02:
     index: 13
-    a: 185
+    a: 278
     alpha: 0
     b: -24
     beta: 0

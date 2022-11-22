@@ -3,3 +3,5 @@
 **/tests
 **/**.egg-info
 **/**/__pycache__
+**/jeus_maunpulator*.txt
+**/mot_manipulator*.txt

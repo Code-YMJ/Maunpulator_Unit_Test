@@ -16,7 +16,7 @@ transform:
   rx: 90
   ry: -90
   rz: 0
-  x: -300.0
+  x: -280.0
   y: -236.0
   z: 18.0
 wait_position:
