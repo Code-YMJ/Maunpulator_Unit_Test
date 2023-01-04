@@ -6,13 +6,27 @@ try:
 except:
     from jeus_vision import *
 
+
 import os
 
 SHARE_DIR = os.getcwd()
-time_out = 5*(10**9)
+time_out = 1000000*(10**9)
+def plot_one_box(x, img, color=None, label=None, line_thickness=3):
+    # Plots one bounding box on image img
+    tl = line_thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) + 1  # line/font thickness
+    color = color or [random.randint(0, 255) for _ in range(3)]
+    c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
+    cv2.rectangle(img, c1, c2, color, thickness=tl, lineType=cv2.LINE_AA)
+    if label:
+        tf = max(tl - 1, 1)  # font thickness
+        t_size = cv2.getTextSize(label, 0, fontScale=tl / 3, thickness=tf)[0]
+        c2 = c1[0] + t_size[0], c1[1] - t_size[1] - 3
+        cv2.rectangle(img, c1, c2, color, -1, cv2.LINE_AA)  # filled
+        cv2.putText(img, label, (c1[0], c1[1] - 2), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
 class jeus_vision():
     def __init__(self) -> None:
         super().__init__()
+        self.isStreaming = False
 
     def init_camera(self):
 
@@ -42,24 +56,38 @@ class jeus_vision():
             exit(0)
 
 
-        self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        self.config.enable_stream(rs.stream.depth,  1280,720, rs.format.z16, 5)
 
         if self.device_product_line == 'L500':
             self.config.enable_stream(rs.stream.color, 960, 540, rs.format.bgr8, 30)
         else:
-            self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+            self.config.enable_stream(rs.stream.color,  1280,720, rs.format.bgr8, 5)
+
+        # self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+
+        # if self.device_product_line == 'L500':
+        #     self.config.enable_stream(rs.stream.color, 960, 540, rs.format.bgr8, 30)
+        # else:
+        #     self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+
 
 
     def init_yolo(self,weight):
-        self.device = ''
         weight_path =  os.path.join(SHARE_DIR,weight)
         # Initialize
-        self.device =  select_device(self.device)
+        self.device =  select_device()
+        # self.device = select_device(self.device)
         # Load model
         self.model = attempt_load(weight_path, device=self.device)  # load FP32 model
         # Get names and colors
         self.names =self.model.module.names if hasattr(self.model, 'module') else self.model.names  
         self.colors = [[random.randint(0, 255) for _ in range(3)] for _ in  self.names]
+
+    def stream_on_off(self, isStreaming):
+        if self.isStreaming:
+            self.isStreaming = False
+        else:
+            
 
     def activate(self, target):
         # Start streaming
@@ -82,17 +110,20 @@ class jeus_vision():
             aligned_frames = align.process(frames)
             depth_frame = aligned_frames.get_depth_frame()
             color_frame = aligned_frames.get_color_frame()
+            if depth_frame == None:
+                continue
             img_color: np.ndarray = np.asanyarray(color_frame.get_data())
             img_depth: np.ndarray = np.asanyarray(depth_frame.get_data())
-            
-            
-            cvt_np = np.zeros((300, 300, 3), np.uint8)
+
+            annotator = Annotator(img_color.copy(), line_width=3, example=str(self.names))
             result = detect(self.device, self.model, img_color, self.names, self.colors, target,
-                            imgsz=list(img_color.shape[0:2]), conf_thres=0.4, iou_thres=0.45, isVisualized=False)
+                            imgsz=list(img_color.shape[0:2]), conf_thres=0.4, iou_thres=0.45, isVisualized=True)
             current_time = time.time_ns() - start_time
             try_count += 1
             if result != None:
-
+                label = f'{target} '
+                plot_one_box(result[1], img_color, label=label, color=[random.randint(0, 255) for _ in range(3)], line_thickness=1)            
+                annotator.box_label(result[1], label)
                 # Intrinsics & Extrinsics
                 depth_intrin = depth_frame.profile.as_video_stream_profile().intrinsics
                 color_intrin = color_frame.profile.as_video_stream_profile().intrinsics
@@ -104,29 +135,31 @@ class jeus_vision():
 
                 # Map depth to color
                 # depth_pixel = [500,300]   # Random pixel
-                depth_point = rs.rs2_deproject_pixel_to_point(depth_intrin, result, depth_scale)
+                depth_point = rs.rs2_deproject_pixel_to_point(depth_intrin, result[0], depth_scale)
 
                 color_point = rs.rs2_transform_point_to_point(depth_to_color_extrin, depth_point)
                 color_pixel = rs.rs2_project_point_to_pixel(color_intrin, color_point)
                 print ('depth: ',color_point)
-                print ('depth: ',color_pixel)
 
                 self.pc.map_to(color_frame)
                 self.points = self.pc.calculate(depth_frame)
                 vtx = np.asanyarray(self.points.get_vertices())
                 tex = np.asanyarray(self.points.get_texture_coordinates())
-                i = 640*result[1]+result[0]
-                print ('depth: ',[np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2])])
+                i = 1280*result[0][1]+result[0][0]
+                print ('point: ',[np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2])])
                 rv = (np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2]))
                 is_done = True
                 
             elif current_time > time_out:
                 is_done = True
-                
+            
+            img = annotator.result()
+            cv2.imshow("test", img)
+            cv2.waitKey(1)  # 1 millisecond
             # elif try_count > 20:
             #     is_done = True
             
-
+        cv2.destroyAllWindows()
         self.pipeline.stop()
         return rv
 
@@ -156,7 +189,7 @@ class jeus_vision():
             
             
             result = detect(self.device, self.model, img_color, self.names, self.colors, target,
-                            imgsz=list(img_color.shape[0:2]), conf_thres=0.25, iou_thres=0.45, isVisualized=True)
+                            imgsz=list(img_color.shape[0:2]), conf_thres=0.25, iou_thres=0.45, isVisualized=False)
             current_time = time.time_ns() - start_time
             # try_count += 1
             if result != None:
@@ -200,6 +233,8 @@ class jeus_vision():
 
     def stop(self):
         self.pipeline.stop()
+    
+    
 '''
 pc = rs.pointcloud()
 frames = pipeline.wait_for_frames()

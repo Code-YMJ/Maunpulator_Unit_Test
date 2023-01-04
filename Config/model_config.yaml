@@ -5,21 +5,22 @@ init_position:
   joint_3: 359.0
 safety_position:
   joint_0: 180.0
-  joint_1: 195.0
-  joint_2: 110.0
-  joint_3: 238.0
+  joint_1: 158.0
+  joint_2: 123.0
+  joint_3: 256.0
 target_position:
-  x: 490.0
-  y: 100.0
-  z: 319.027
+  x: 350.0
+  y: -39.246
+  z: 137.035
 transform:
   rx: 90
   ry: -90
   rz: 0
-  x: -300.0
-  y: -236.0
-  z: 18.0
+  x: -15.0
+  y: -223.0
+  z: -15.0
 wait_position:
-  x: 480.0
-  y: 100.0
-  z: 319.027
+  x: 320.0
+  y: -39.246
+  z: 137.035
+weight_path: btn_230103/best.pt

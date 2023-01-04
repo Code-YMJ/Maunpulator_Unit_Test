@@ -53,6 +53,7 @@ class jeus_maunpulator_test():
                     y : float = buf[3]
                     z : float = buf[4]
                     self.move_point(mode, x,y,z)
+
                 elif buf[0] == cmd_from_main.Move_Joint:
                     """
                     buf ={cmd_from_main.Move_Joint, joint_index, angles}
@@ -70,6 +71,7 @@ class jeus_maunpulator_test():
                     angles = buf[2]
                     use_offset = buf[3]
                     self.move_joint_all(joint_index,angles,use_offset)
+
                 elif buf[0] == cmd_from_main.Torque_OnOff:
                     """
                     
@@ -80,18 +82,22 @@ class jeus_maunpulator_test():
                         self.torque_on(joint_index)
                     else:
                         self.torque_off(joint_index)
+                        
             if hasattr(self, 'module'):
                 self.update_pos()
                 self.update_torque()
             time.sleep(0.01)
 
     def get_pos(self):
-        if self.pos_lock.acquire(timeout=0.05):                    
-            self.return_pos = self.current_pos
-            self.pos_lock.release()
-            return self.return_pos
-        else:
             return self.current_pos
+
+        # if self.pos_lock.acquire(timeout=0.05):                    
+        #     self.return_pos = self.current_pos
+        #     self.pos_lock.release()
+        #     return self.return_pos
+        # else:
+        #     # self.pos_lock.release()
+        #     return self.current_pos
     
     def get_torque_status(self,joint_num : int) -> dict:
         if self.torque_lock.acquire(timeout=0.05):
@@ -102,7 +108,11 @@ class jeus_maunpulator_test():
     def update_pos(self):
         if self.pos_lock.acquire():                    
             self.current_pos = self.get_current_joint_pos()
+            # time.sleep(0.005)
             self.pos_lock.release()
+        else:
+            self.pos_lock.release()
+
     def update_torque(self):
         if self.torque_lock.acquire():                    
             for i in self.index_list:
@@ -226,8 +236,10 @@ class jeus_maunpulator_test():
 
     def move_point(self, move_mode:MoveMode, x : float, y : float, z : float, rx=-1, ry=-1, rz=-1):
         # todo - 
-        joint_angle_current = np.array([self.get_current_joint_pos()[self.index_list[i]] for i in range(4)])*DEG2RAD
-        joint_angle_target = self.get_ik_modf([x,y,z],joint_angle_current)
+        joint_angle_current_deg = [self.current_pos[self.index_list[i]] for i in range(4)]
+        joint_angle_adjust =self.adjust_offset_angle_reverse(joint_angle_current_deg)
+        joint_angle_current = np.array(joint_angle_adjust)*DEG2RAD
+        joint_angle_target = self.get_ik_modf([x,y,z])
         self.log.Info(f"joint_angle_current {joint_angle_current} -> joint_angle_target {joint_angle_target}")
 
         paths : list
@@ -238,7 +250,11 @@ class jeus_maunpulator_test():
         if move_mode == MoveMode.J_Move:            
             self.move_joint_all(angles=joint_angle_target,vel= 50,useoffset = True)
         elif move_mode == MoveMode.L_Move:
-            self.get_L_Path(joint_angle_current,joint_angle_target, t1 = 5)
+            l_path = self.get_L_Path(joint_angle_current,[x,y,z], t1 = 1, dt=0.05)
+            # print(l_path)
+            for pos in l_path:
+                self.move_joint_all(angles=pos,vel= 50, useoffset = True,use_Monitor=False)
+                # time.sleep(0.01)
         return
     
 
@@ -267,7 +283,7 @@ class jeus_maunpulator_test():
     #         return False
     #     return True
 
-    def move_joint_all(self,  angles : list[int] , vel = 100, useoffset = False, timeout = 6) -> bool:        
+    def move_joint_all(self,  angles : list[int] , vel = 100, useoffset = False, timeout = 6, use_Monitor = True) -> bool:        
         if useoffset :
             angle_adjust = self.adjust_offset_angle(angles)
         else:
@@ -277,25 +293,54 @@ class jeus_maunpulator_test():
         idxes = self.index_list
         goal_angle = angles
         isdone = False
-        while isdone==False:
-            self.module.move_multi_sync_joint(idxes, angle_adjust,vel)
-            time.sleep(0.01)
-            self.update_pos()
-            isdone = True
-            current_angle = self.current_pos
-            i = 0
-            for idx in idxes:
-                if abs(current_angle[idx] -  goal_angle[i]) <= 0.3:
-                    isdone &= True
-                else:
-                    isdone &= False
-                i +=1
+        self.module.move_multi_sync_joint(idxes, angle_adjust,vel)
+        if  use_Monitor:
+            while isdone==False:
+                time.sleep(0.03)
+                self.update_pos()
+                isdone = True
+                current_angle = self.current_pos
+                i = 0
+                for idx in idxes:
+                    if abs(current_angle[idx] -  goal_angle[i]) <= 0.3:
+                        isdone &= True
+                    else:
+                        isdone &= False
+                    i +=1
 
-            duringtime = datetime.now() - start_time
-            if duringtime.seconds > timeout:
-                isdone =True
-            time.sleep(0.01)
-    
+                duringtime = datetime.now() - start_time
+                if duringtime.seconds > timeout:
+                    isdone =True
+                time.sleep(0.05)
+
+    # def move_joint_all(self,  angles : list[int] , vel = 100, useoffset = False, timeout = 6) -> bool:        
+    #     if useoffset :
+    #         angle_adjust = self.adjust_offset_angle(angles)
+    #     else:
+    #         angle_adjust= angles
+    #     self.log.Info(f"angle_adjust {angle_adjust}")
+    #     start_time = datetime.now()
+    #     idxes = self.index_list
+    #     goal_angle = angles
+    #     isdone = False
+    #     while isdone==False:
+    #         self.module.move_multi_sync_joint(idxes, angle_adjust,vel)
+    #         self.update_pos()
+    #         time.sleep(0.01)
+    #         isdone = True
+    #         current_angle = self.current_pos
+    #         i = 0
+    #         for idx in idxes:
+    #             if abs(current_angle[idx] -  goal_angle[i]) <= 0.3:
+    #                 isdone &= True
+    #             else:
+    #                 isdone &= False
+    #             i +=1
+
+    #         duringtime = datetime.now() - start_time
+    #         if duringtime.seconds > timeout:
+    #             isdone =True
+    #         time.sleep(0.01)
     # def move_joint_all(self,  angles : list[int] , vel = 20, useoffset = False) -> bool:        
     #     if useoffset :
     #         angle_adjust = self.adjust_offset_angle(angles)
@@ -323,11 +368,13 @@ class jeus_maunpulator_test():
     def adjust_offset_angle(self, val : list[int]):
         buf = [(((val[i]*RAD2DEG)-self.module_config[self.index_list[i]].joint_offset)* -1) for i in range(4)]
         return buf
-
+    def adjust_offset_angle_reverse(self, val : list[int]):
+        buf = [(((val[i])+ self.module_config[self.index_list[i]].joint_offset)* -1) for i in range(4)]
+        return buf
 
 # Kinematic function
 # 
-    def get_J_path(self, qs, qd, t0 = 0.0, t1 = 1.0, dt = 0.01, vel = 20, res = None ):
+    def get_J_path(self, qs, qd, t0 = 0.0, t1 = 1.0, dt = 0.01, vel = 20, res = None):
         """
         Test Code 
         """
@@ -366,25 +413,27 @@ class jeus_maunpulator_test():
                 break
         return q_tar
 
-    def get_L_Path(self, qs, xd, t0 = 0.0, t1 = 1.0, dt=0.001, vel = 100):
+    def get_L_Path(self, qs, pd, t0 = 0.0, t1 = 1.0, dt=0.001, vel = 100):
         """
         테스트 안해봄
         """
         xs = tr2pose(self.get_fk(qs))
-        
-        Td = pose2tr(xd)
-        qd = self.get_ik(Td, curJnt = qs, shoulder = FRONT, elbow = DOWN)
+        print(xs)
+        xd = deepcopy(xs)
+        xd[0:3] = pd
+        # Td = pose2tr(xd)
+        # qd = self.get_ik(Td, curJnt = qs, shoulder = FRONT, elbow = DOWN)
 
         Ux = PathPlanner(xs, xd, t0, t1)
         
-        x_pre = deepcopy(xs)
-        q_pre = deepcopy(qs) 
+        # x_pre = deepcopy(xs)
+        # q_pre = deepcopy(qs) 
 
-        qd_pre = np.zeros(4)
-        qdd_pre = np.zeros(4)
+        # qd_pre = np.zeros(4)
+        # qdd_pre = np.zeros(4)
         
-        qd_cur = np.zeros(4)
-        qdd_cur = np.zeros(4)
+        # qd_cur = np.zeros(4)
+        # qdd_cur = np.zeros(4)
 
         t = 0.0
         
@@ -394,42 +443,46 @@ class jeus_maunpulator_test():
             t += dt
             
             # Get Cartesian Reference =================================================
-            x_tar = np.zeros(4); xd_tar = np.zeros(4); xdd_tar = np.zeros(4);
-            for i in range(4):
-                val, val_d, val_dd = get_state_traj(t, t0, Ux[i])
+            x_tar = np.zeros(6); xd_tar = np.zeros(6); xdd_tar = np.zeros(6);
+            for i in range(6):
+                # print(f"t {t},t0 {t0},Ux[i] {Ux[i]}")
+
+                Buf= get_state_traj(t, t0, Ux[i])
+                # print(f"get_state_traj : {Buf} ")
+                val, val_d, val_dd = Buf
                 x_tar[i] = val; xd_tar[i] = val_d; xdd_tar[i] = val_dd
                 
             # q_cur = get_dq(q_pre, x_tar)
-            q_cur = self.get_ik(pose2tr(x_tar), curJnt = qs, shoulder = FRONT, elbow = DOWN)
-            x_cur = tr2pose(self.get_fk(q_cur))
+            q_cur = self.get_ik(pose2tr(x_tar), curJnt = qs,  shoulder = FRONT, elbow = DOWN)
+            # x_cur = tr2pose(self.get_fk(q_cur))
 
             # get torque ------------------------------------------------------------------
             # calculate qd, qdd
-            qdd_cur = (qd_cur - qd_pre) / dt
-            qd_cur = (q_cur - q_pre) / dt
+            # qdd_cur = (qd_cur - qd_pre) / dt
+            # qd_cur = (q_cur - q_pre) / dt
 
-            R = eulXYZ2r(x_cur[3:])
+            # R = eulXYZ2r(x_cur[3:])
 
             # Append Data ------------------------------------------------------------
             Q.append(q_cur)
             
             # recursive --------------------------------
-            q_pre = deepcopy(q_cur)
-            x_pre = deepcopy(x_cur)
+            # q_pre = deepcopy(q_cur)
+            # x_pre = deepcopy(x_cur)
 
-            qd_pre = deepcopy(qd_cur)
-            qdd_pre = deepcopy(qdd_cur)
+            # qd_pre = deepcopy(qd_cur)
+            # qdd_pre = deepcopy(qdd_cur)
 
 
-            # termination -------------------------
-            err = np.linalg.norm(xd - x_cur)
+            # # termination -------------------------
+            # err = np.linalg.norm(xd - x_cur)
             if t > t1:
                 print('over t : ', t)
                 break
             
-        print("Done !")
+        # print("Done !")
 
-        return np.array(Q)
+        return Q
  
     # def get_L_Path(self, qs, xd, t0 = 0.0, t1 = 1.0, dt=0.001, vel = 100):
     #     """
@@ -497,12 +550,12 @@ class jeus_maunpulator_test():
     #     return np.array(Q)
  
 
-    def get_current_xyz(self):
-        joint_angle_current =np.array(list(self.get_current_joint_pos().values()))*DEG2RAD
-        buf_vector = self.get_fk(joint_angle_current)
-         # translation vector
-        translation = buf_vector[0:3,3] 
-        return translation
+    # def get_current_xyz(self):
+    #     joint_angle_current =np.array(list(self.get_current_joint_pos().values()))*DEG2RAD
+    #     buf_vector = self.get_fk(joint_angle_current)
+    #      # translation vector
+    #     translation = buf_vector[0:3,3] 
+    #     return translation
         
         
     def get_fk(self, q):

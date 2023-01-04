@@ -600,7 +600,7 @@
     <widget class="QPushButton" name="btnSeq_SelectBtn">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>160</x>
        <y>70</y>
        <width>141</width>
        <height>81</height>
@@ -613,7 +613,7 @@
     <widget class="QPushButton" name="btnSeq_Pushbtn">
      <property name="geometry">
       <rect>
-       <x>180</x>
+       <x>300</x>
        <y>70</y>
        <width>141</width>
        <height>81</height>
@@ -660,6 +660,19 @@
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnSeq_Stream">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>141</width>
+       <height>81</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Stream</string>
      </property>
     </widget>
    </widget>
@@ -1507,7 +1520,7 @@
    <slot>sequence_DetectBtn()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>470</x>
+     <x>600</x>
      <y>790</y>
     </hint>
     <hint type="destinationlabel">
@@ -1523,7 +1536,7 @@
    <slot>sequence_PushBtn()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>618</x>
+     <x>738</x>
      <y>795</y>
     </hint>
     <hint type="destinationlabel">
@@ -1644,6 +1657,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btnSeq_Stream</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>Stream()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>458</x>
+     <y>805</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>494</x>
+     <y>867</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>connect_device()</slot>
@@ -1656,5 +1685,6 @@
   <slot>sequence_all()</slot>
   <slot>torque_onoff()</slot>
   <slot>calculate_xyz()</slot>
+  <slot>Stream()</slot>
  </slots>
 </ui>

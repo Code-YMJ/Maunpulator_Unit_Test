@@ -1,5 +1,6 @@
 
 import time
+import os
 
 import cv2
 import torch
@@ -115,7 +116,7 @@ def detect(device, model, img_raw: np.ndarray, names, colors,target,
     det = pred[0]
     im0 = img0[0].copy()
     # if isVisualized: im0 = img0[0].copy()
-    #print("im0_shpape:", im0.shape)
+    print("im0_shpape:", im0.shape)
     send_data = None
     
     if len(det):
@@ -129,21 +130,73 @@ def detect(device, model, img_raw: np.ndarray, names, colors,target,
             if cl == target:
                 center = (int((xyxy[0] + xyxy[2]) / 2), int((xyxy[1] + xyxy[3]) / 2))
                 c1, c2 = (int(xyxy[0]), int(xyxy[1])), (int(xyxy[2]), int(xyxy[3]))
-                send_data = center
+                send_data = [center,xyxy]
             if isVisualized:
+
                 label = f'{names[c]} {conf:.2f}'
-                plot_one_box(xyxy, im0, label=label, color=colors[c], line_thickness=1)            
-                #annotator.box_label(xyxy, label, color=colors(c, True))
+                # plot_one_box(xyxy, im0, label=label, color=colors[c], line_thickness=1)            
+                # annotator.box_label(xyxy, label, color=colors(c, True))
     else:
         send_data = None
+    
+
+
 
     # Print time (inference + NMS)
     if verbose:
         #print(f'Done. ({t2 - t1:.3f}s)')
         print(f"{target} Center : {send_data}")
 
-    if isVisualized: view(im0)
+    if isVisualized: 
+        cv2.imwrite('./result/btn_{0}'.format(time.time()), im0)
+    
+    return send_data
 
+
+def detect_stream(device, model, img_raw: np.ndarray, names, colors,
+           imgsz=[448, 640], conf_thres=0.01, iou_thres=0.25, classes=None, agnostic_nms=False, isVisualized = True, verbose = False):
+
+    img_raw = np.expand_dims(img_raw, axis=0)
+
+    half = device.type != 'cpu'  # half precision only supported on CUDA
+    if half:
+        model.half()  # to FP16
+
+    stride = int(model.stride.max())  # model stride
+    imgsz = check_img_size(imgsz, s=stride)  # check img_size
+
+    # Run inference
+    if device.type != 'cpu':
+        model(torch.zeros(1, 3, *imgsz).to(device).type_as(next(model.parameters())))  # run once
+
+    img0 = img_raw
+    img = img_preprocess(img0, imgsz, half, stride, device)
+
+    # Inference
+    pred = model(img)[0]
+
+    # Apply NMS
+    pred = non_max_suppression(pred, conf_thres, iou_thres, classes=classes, agnostic=agnostic_nms)
+    # gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
+
+    # Visualization
+    det = pred[0]
+    im0 = img0[0].copy()
+    # if isVisualized: im0 = img0[0].copy()
+    print("im0_shpape:", im0.shape)
+    send_data = None
+    annotator = Annotator(im0, line_width=3, example=str(names))
+    
+    if len(det):
+        # Rescale boxes from img_size to im0 size
+        det[:, :4] = scale_boxes(img.shape[2:], det[:, :4], im0.shape).round()
+
+        send_data = det
+    else:
+        send_data = None
+    
+
+    
     return send_data
 
 def yolo2pixel(center_x,center_y,img_x = 640,img_y=480):

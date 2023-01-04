@@ -57,32 +57,52 @@ class transform_param():
     ry : int = 0
     rz : int = 0
 
-
+targe_list = [
+    "person",
+    "btn_1",
+    "btn_2",
+    "btn_3",
+    "btn_4",
+    "btn_5",
+    "btn_6",
+    "btn_7",
+    "btn_8",
+    "btn_9",
+    "btn_10",
+    "btn_11",
+    "btn_12",
+    "btn_13",
+    "btn_14",
+    "btn_15",
+    "btn_16",
+    "btn_17",
+    "btn_18",
+    "btn_19"
+    ]
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        self.connect_vision_module()
         self.setupUi(self)
         self.show()
         self.setconfig()
+        self.connect_vision_module()
         # self.timer =  QTimer(self)
         self.timer = QTimer(self)
         # self.timer.singleShot(100,self.get_current_positions)
         self.timer.start(100)
         # self.
         self.timer.timeout.connect(self.get_current_positions)
-        self.InUse =False
 
     def connect_vision_module(self):
-        self.weight = 'weights/yolov5s.pt'
+        # self.weight = 'btn_221203/best.pt'
         self.vision = jeus_vision()
         self.vision.init_camera()
         self.vision.init_yolo(self.weight)
 
 
     def connect_device(self):
-        if not hasattr(self, 'IsConnect') or not self.IsConnect or not self.InUse :
+        if not hasattr(self, 'IsConnect') or not self.IsConnect  :
             self.btnConnect.setText('connectting')
             self.manupulator = jeus_manupulator_refactory.jeus_maunpulator_test()
             self.manupulator.get_param_value(os.path.join(os.getcwd(),'Config'),'arm_config.yaml')
@@ -100,6 +120,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         path =os.path.join(os.getcwd(),'Config','model_config.yaml')
         with open(path) as fileopen:
             model_config = yaml.load(fileopen, Loader=yaml.FullLoader)
+            self.weight = model_config['weight_path']
             init_pos = model_config[config_init_posi]
             self.tbInitPos_0.setPlainText(str(init_pos[joint_0]))
             self.tbInitPos_1.setPlainText(str(init_pos[joint_1]))
@@ -206,8 +227,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             pass
 
 
-    def move_J(self):        
-        self.InUse =True
+    def move_J(self):
         sender = self.sender()          
         sender_name = sender.objectName()
         if sender_name == self.btnMoveInitPos.objectName():
@@ -237,29 +257,75 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             x = float(self.tbTargetPos_X.toPlainText())
             y = float(self.tbTargetPos_Y.toPlainText())
             z = float(self.tbTargetPos_Z.toPlainText())
-            self.manupulator.move_point(jeus_manupulator_refactory.MoveMode.J_Move, x, y, z)
+            self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.J_Move, x, y, z)
         else:
             return
-        self.InUse =False
 
     def move_L(self):
-        pass
+        x = float(self.tbTargetPos_X.toPlainText())
+        y = float(self.tbTargetPos_Y.toPlainText())
+        z = float(self.tbTargetPos_Z.toPlainText())
+        self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.L_Move, x, y, z)
+
     def sequence_DetectBtn(self):
-        result = self.vision.activate(target='person')
+        target = self.tbFloor.toPlainText()
+        if not target in targe_list:
+            self.tbCurrent_X.setPlainText('Target None')
+            self.tbCurrent_Y.setPlainText('Target None')
+            self.tbCurrent_Z.setPlainText('Target None')
+            return
+        
+        result = self.vision.activate(target=target)
         if result != None:
             camera_x, camera_y, camera_z = result
             self.tbCurrent_X.setPlainText(str(round(camera_x*1000,3)))
             self.tbCurrent_Y.setPlainText(str(round(camera_y*1000,3)))
             self.tbCurrent_Z.setPlainText(str(round(camera_z*1000,3)))
+            self.calculate_xyz()
         else:
             self.tbCurrent_X.setPlainText('None')
             self.tbCurrent_Y.setPlainText('None')
             self.tbCurrent_Z.setPlainText('None')
+        
 
     def sequence_PushBtn(self):
-        pass
+        safety_joint_0 = float(self.tbSafetyPos_0.toPlainText())
+        safety_joint_1 = float(self.tbSafetyPos_1.toPlainText())
+        safety_joint_2 = float(self.tbSafetyPos_2.toPlainText())
+        safety_joint_3 = float(self.tbSafetyPos_3.toPlainText())
+        safety_angles = [safety_joint_0,safety_joint_1,safety_joint_2,safety_joint_3]
+        self.manupulator.MoveJoints(safety_angles ,100, False)
+        
+        wait_x = float(self.tbWaitPos_X.toPlainText())
+        wait_y = float(self.tbWaitPos_Y.toPlainText())
+        wait_z = float(self.tbWaitPos_Z.toPlainText())
+        self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.J_Move, wait_x, wait_y, wait_z)
+        
+        
+        target_x = float(self.tbTargetPos_X.toPlainText())
+        target_y = float(self.tbTargetPos_Y.toPlainText())
+        target_z = float(self.tbTargetPos_Z.toPlainText())
+        self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.L_Move, target_x, target_y, target_z)
+
+
+        self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.L_Move, wait_x, wait_y, wait_z)
+
+        self.manupulator.MoveJoints(safety_angles ,100, False)
+        target_joint_0 = float(self.tbInitPos_0.toPlainText())
+        target_joint_1 = float(self.tbInitPos_1.toPlainText())
+        target_joint_2 = float(self.tbInitPos_2.toPlainText())
+        target_joint_3 = float(self.tbInitPos_3.toPlainText())
+        target_angles = [target_joint_0,target_joint_1,target_joint_2,target_joint_3]
+        self.manupulator.MoveJoints(target_angles ,100, False)
+
     def sequence_all(self):
-        pass
+        self.sequence_DetectBtn()
+        self.sequence_PushBtn()
+    
+    def stream(self):
+        # TODO - Check IsStreaming -> start Streaming or End Streaming
+        a = 0 
+
         
 def main():
     app = QApplication([])

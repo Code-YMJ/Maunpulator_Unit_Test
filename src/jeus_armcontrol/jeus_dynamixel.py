@@ -126,7 +126,7 @@ class mot_manipulator:
     def __init__(self, device_parameter : device_param) -> None:
         self.log = jeus_log(os.getcwd(), 'mot_manipulator')
         self.device_param :device_param = device_parameter
-        
+        self.idx =[11,12,13,14]
 
     def connect(self) -> bool:
         self.port_handler  = PortHandler(self.device_param.port)
@@ -151,6 +151,10 @@ class mot_manipulator:
             return False
         else:
             self.log.Info("Succeeded to change the baudrate")
+        for i in range(4): 
+            self.log.Info(f'{self.idx[i]},p gain {self.module_param[self.idx[i]].p_gain}, i gain {self.module_param[self.idx[i]].i_gain}, d gain {self.module_param[self.idx[i]].d_gain}, f1 0, f2 0')
+            if not self.writeConfig(self.idx[i], self.module_param[self.idx[i]].p_gain, self.module_param[self.idx[i]].i_gain, self.module_param[self.idx[i]].d_gain, 0, 0):
+                return False
         return True
         
     def disconnect(self):
@@ -262,20 +266,19 @@ class mot_manipulator:
     # Function: Write parameter
     def writeParam(self,idx, p_gain, i_gain, d_gain, f1_gain, f2_gain, prof_vel, prof_accel, debug_on):
         rtn = True
-        if(debug_on==True):
-            self.log.Info("write PID gain param idx{0}".format(idx))
+
+        rtn &= self.writeCtlTable(idx, 'ADDR_PROF_VEL', prof_vel)
+        rtn &= self.writeCtlTable(idx, 'ADDR_PROF_ACCEL', prof_accel)
+        return rtn
+       
+    def writeConfig(self,idx, p_gain, i_gain, d_gain, f1_gain, f2_gain):
+        rtn = True
         rtn &= self.writeCtlTable(idx, 'ADDR_POSI_PGAIN', p_gain)
         rtn &= self.writeCtlTable(idx, 'ADDR_POSI_IGAIN', i_gain)
         rtn &= self.writeCtlTable(idx, 'ADDR_POSI_DGAIN', d_gain)
         rtn &= self.writeCtlTable(idx, 'ADDR_FWD_GAIN1', f1_gain)
         rtn &= self.writeCtlTable(idx, 'ADDR_FWD_GAIN2', f2_gain)
-        if(debug_on==True):
-            self.log.Info("write profile param idx{0}".format(idx))
-        # writeCtlTable(idx, 'ADDR_PROF_VEL', 32767) # operation is same to 0
-        rtn &= self.writeCtlTable(idx, 'ADDR_PROF_VEL', prof_vel)
-        rtn &= self.writeCtlTable(idx, 'ADDR_PROF_ACCEL', prof_accel)
-        return rtn
-        
+        return rtn 
 
     # Function: Write goal position
     def set_goal_position(self,idx, gp, debug_on):
@@ -315,7 +318,7 @@ class mot_manipulator:
         addr_cur_posi = ctl_table['ADDR_PRES_POSI']['addr']
         # goalPosi = int(POSI_360*angle/360)
         goalPosi = self.angle_to_pulse(angle)
-        self.log.Info(f'{idx},p gain {self.module_param[idx].p_gain}, i gain {self.module_param[idx].i_gain}, d gain {self.module_param[idx].d_gain}, f1 0, f2 0, vel {vel}, 1, False')
+        # self.log.Info(f'{idx},p gain {self.module_param[idx].p_gain}, i gain {self.module_param[idx].i_gain}, d gain {self.module_param[idx].d_gain}, f1 0, f2 0, vel {vel}, 1, False')
         if not self.writeParam(idx, self.module_param[idx].p_gain, self.module_param[idx].i_gain, self.module_param[idx].d_gain, 0, 0, vel, 1, False):
             return False
         self.set_goal_position(idx, goalPosi, False)
@@ -351,14 +354,15 @@ class mot_manipulator:
             self.log.Info(f'{idx[i]},p gain {self.module_param[idx[i]].p_gain}, i gain {self.module_param[idx[i]].i_gain}, d gain {self.module_param[idx[i]].d_gain}, f1 0, f2 0, vel {vel_buf[i]}, 1, False')
             if not self.writeParam(idx[i], self.module_param[idx[i]].p_gain, self.module_param[idx[i]].i_gain, self.module_param[idx[i]].d_gain, 0, 0, int(vel_buf[i]), 1, False):
                 return False
+        # time.sleep(0.01)
         for i in range(n): 
             angle_int = self.angle_to_pulse(angle[i])
-            self.log.Info(f'joint [{i}] : {angle_int}')
+            self.log.Info(f'joint [{i}] : {angle[i]}')
             param_goal_position = [DXL_LOBYTE(DXL_LOWORD(angle_int)), DXL_HIBYTE(DXL_LOWORD(angle_int)), DXL_LOBYTE(DXL_HIWORD(angle_int)), DXL_HIBYTE(DXL_HIWORD(angle_int))]
             dxl_addparam_result = self.groupSyncWrite.addParam(idx[i], param_goal_position)
             if dxl_addparam_result != True:
                 print("[ID:%03d] groupSyncWrite addparam failed" % idx[i]) 
-        self.log.Info(f"Start Move : {angle_int}")        
+        # self.log.Info(f"Start Move : {angle}")        
         dxl_comm_result = self.groupSyncWrite.txPacket()
         self.groupSyncWrite.clearParam()        
         return True
