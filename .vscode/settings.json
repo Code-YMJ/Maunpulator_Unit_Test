@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "iostream": "cpp"
+    },
+    "python.analysis.typeCheckingMode": "off"
+}

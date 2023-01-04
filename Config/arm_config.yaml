@@ -12,9 +12,9 @@ Joint:
     beta: 0
     d: 99
     theta: 0
-    p_gain: 200
-    i_gain: 1
-    d_gain: 2000
+    p_gain: 400
+    i_gain: 200
+    d_gain: 2500
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5
@@ -30,9 +30,9 @@ Joint:
     beta: 0
     d: 0
     theta: -90
-    p_gain: 200
-    i_gain: 1
-    d_gain: 2000
+    p_gain: 400
+    i_gain: 200
+    d_gain: 2500
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5
@@ -48,9 +48,9 @@ Joint:
     beta: 0
     d: 0
     theta: 90
-    p_gain: 200
-    i_gain: 1
-    d_gain: 2000
+    p_gain: 400
+    i_gain: 200
+    d_gain: 2500
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5
@@ -66,9 +66,9 @@ Joint:
     beta: 0
     d: 0
     theta: 0
-    p_gain: 200
-    i_gain: 1
-    d_gain: 2000
+    p_gain: 400
+    i_gain: 200
+    d_gain: 2500
     max_rpm: 100
     max_acc: 1
     max_LoadmA: 0.5

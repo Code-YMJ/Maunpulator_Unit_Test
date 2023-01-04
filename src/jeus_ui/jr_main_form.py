@@ -1,3 +1,6 @@
+import sys
+import warnings
+# import pywinauto
 
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
@@ -8,12 +11,15 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel,
     QWidget)
 from PySide6.QtCore import *
 import os
-import sys
+from dataclasses import dataclass
 import threading
-from jeus_armcontrol import *
+from jeus_armcontrol import  jeus_manupulator_refactory,jeus_kinematictool
 from jeus_vision import *
+
 import yaml
 from jeus_ui.ui_jr_main_form import *
+
+
 
 config_init_posi = 'init_position'
 config_safety_posi = 'safety_position'
@@ -51,36 +57,59 @@ class transform_param():
     ry : int = 0
     rz : int = 0
 
-
+targe_list = [
+    "person",
+    "btn_1",
+    "btn_2",
+    "btn_3",
+    "btn_4",
+    "btn_5",
+    "btn_6",
+    "btn_7",
+    "btn_8",
+    "btn_9",
+    "btn_10",
+    "btn_11",
+    "btn_12",
+    "btn_13",
+    "btn_14",
+    "btn_15",
+    "btn_16",
+    "btn_17",
+    "btn_18",
+    "btn_19"
+    ]
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        self.connect_vision_module()
         self.setupUi(self)
         self.show()
         self.setconfig()
+        self.connect_vision_module()
+        # self.timer =  QTimer(self)
         self.timer = QTimer(self)
+        # self.timer.singleShot(100,self.get_current_positions)
         self.timer.start(100)
+        # self.
         self.timer.timeout.connect(self.get_current_positions)
-        self.InUse =False
 
     def connect_vision_module(self):
-        self.weight = 'weights/yolov5s.pt'
+        # self.weight = 'btn_221203/best.pt'
         self.vision = jeus_vision()
         self.vision.init_camera()
         self.vision.init_yolo(self.weight)
 
 
     def connect_device(self):
-        if not hasattr(self, 'IsConnect') or not self.IsConnect or not self.InUse :
+        if not hasattr(self, 'IsConnect') or not self.IsConnect  :
             self.btnConnect.setText('connectting')
-            self.manupulator = jeus_maunpulator()
+            self.manupulator = jeus_manupulator_refactory.jeus_maunpulator_test()
             self.manupulator.get_param_value(os.path.join(os.getcwd(),'Config'),'arm_config.yaml')
             if self.manupulator.generate_module():
                 self.IsConnect = True
                 self.btnConnect.setText('connected')
-                self.manupulator.torque_on()
+                self.manupulator.Torque_ON()
         else:
             self.IsConnect = False
             self.manupulator.disconnect()
@@ -91,6 +120,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         path =os.path.join(os.getcwd(),'Config','model_config.yaml')
         with open(path) as fileopen:
             model_config = yaml.load(fileopen, Loader=yaml.FullLoader)
+            self.weight = model_config['weight_path']
             init_pos = model_config[config_init_posi]
             self.tbInitPos_0.setPlainText(str(init_pos[joint_0]))
             self.tbInitPos_1.setPlainText(str(init_pos[joint_1]))
@@ -122,7 +152,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.transform_config.ry = transforms_config['ry']
             self.transform_config.rz = transforms_config['rz']
             self.t = np.array([self.transform_config.x,self.transform_config.y,self.transform_config.z])
-            self.eul = np.array([self.transform_config.rx*DEG2RAD,self.transform_config.ry*DEG2RAD,self.transform_config.rz*DEG2RAD])
+            self.eul = np.array([self.transform_config.rx*jeus_kinematictool.DEG2RAD,self.transform_config.ry*jeus_kinematictool.DEG2RAD,self.transform_config.rz*jeus_kinematictool.DEG2RAD])
 
     def save(self):
         path =os.path.join(os.getcwd(),'Config','model_config.yaml')
@@ -138,22 +168,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def get_current_positions(self):
         if hasattr(self, 'manupulator') and self.IsConnect:
-            positions = self.manupulator.get_current_joint_pos()
-            key_hard = sorted(positions.keys())
+            positions = self.manupulator.get_pos()
+            if positions != None:
+                sorted_keys = sorted(positions.keys())
 
-            self.tbCurrentPosJoint1.setPlainText(str(round(positions[key_hard[0]], 3)))
-            self.tbCurrentPosJoint2.setPlainText(str(round(positions[key_hard[1]], 3)))
-            self.tbCurrentPosJoint3.setPlainText(str(round(positions[key_hard[2]], 3)))
-            self.tbCurrentPosJoint4.setPlainText(str(round(positions[key_hard[3]], 3)))
+                self.tbCurrentPosJoint1.setPlainText(str(round(positions[sorted_keys[0]], 3)))
+                self.tbCurrentPosJoint2.setPlainText(str(round(positions[sorted_keys[1]], 3)))
+                self.tbCurrentPosJoint3.setPlainText(str(round(positions[sorted_keys[2]], 3)))
+                self.tbCurrentPosJoint4.setPlainText(str(round(positions[sorted_keys[3]], 3)))
 
 
     def torque_onoff(self):
         sender = self.sender()        
         sender_idx = int(sender.objectName().split('_')[1])
         if self.manupulator.get_torque_status(sender_idx):
-            self.manupulator.torque_off(sender_idx)
+            self.manupulator.Torque_OFF(sender_idx)
         else:
-            self.manupulator.torque_on(sender_idx)
+            self.manupulator.Torque_ON(sender_idx)
 
     def move_joint(self):
         sender = self.sender()        
@@ -171,15 +202,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             print(f'move_joint error : index {sender_idx}')
             return
         if not self.manupulator.get_torque_status(sender_idx):
-            print(f'Error : Joint {sender_idx} torque off')
+            print(f'Error : Joint {int(sender_idx)+1} torque off')
             return
         # w = worker(self,self.manupulator.move_joint,sender_idx,angle)
         # w.start()
-        self.manupulator.move_joint(sender_idx,angle)
+        self.manupulator.MoveJoint(sender_idx,angle)
+
     def calculate_xyz(self):
         try:
             pc = np.array([float(self.tbCurrent_X.toPlainText()),float(self.tbCurrent_Y.toPlainText()),float(self.tbCurrent_Z.toPlainText())])
-            cal_pc = point_to_base(pc,self.t,self.eul)
+            cal_pc =jeus_kinematictool.point_to_base(pc,self.t,self.eul)
             x = round(cal_pc[0],3)
             y = round(cal_pc[1],3)
             z = round(cal_pc[2],3)
@@ -195,9 +227,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             pass
 
 
-    def move_J(self):        
-        self.InUse =True
-        sender = self.sender()        
+    def move_J(self):
+        sender = self.sender()          
         sender_name = sender.objectName()
         if sender_name == self.btnMoveInitPos.objectName():
             joint_0 = float(self.tbInitPos_0.toPlainText())
@@ -205,7 +236,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             joint_2 = float(self.tbInitPos_2.toPlainText())
             joint_3 = float(self.tbInitPos_3.toPlainText())
             angles = [joint_0,joint_1,joint_2,joint_3]
-            self.manupulator.move_joint_all(angles ,100, False)
+            self.manupulator.MoveJoints(angles ,100, False)
 
         elif sender_name == self.btnMoveSafetyPos.objectName():
             joint_0 = float(self.tbSafetyPos_0.toPlainText())
@@ -213,57 +244,98 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             joint_2 = float(self.tbSafetyPos_2.toPlainText())
             joint_3 = float(self.tbSafetyPos_3.toPlainText())
             angles = [joint_0,joint_1,joint_2,joint_3]
-            self.manupulator.move_joint_all( angles ,100, False)
+            self.manupulator.MoveJoints( angles ,100, False)
         
         elif sender_name == self.btnMoveWaitPos.objectName():
             x = float(self.tbWaitPos_X.toPlainText())
             y = float(self.tbWaitPos_Y.toPlainText())
             z = float(self.tbWaitPos_Z.toPlainText())
-            self.manupulator.move_point(MoveMode.J_Move, x, y, z)
+            self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.J_Move, x, y, z)
             # joint_angles = self.manupulator.point2Angle(MoveMode.J_Move, x, y, z)
 
         elif sender_name == self.btnMoveTargetPos_J.objectName():
             x = float(self.tbTargetPos_X.toPlainText())
             y = float(self.tbTargetPos_Y.toPlainText())
             z = float(self.tbTargetPos_Z.toPlainText())
-            self.manupulator.move_point(MoveMode.J_Move, x, y, z)
+            self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.J_Move, x, y, z)
         else:
             return
-        self.InUse =False
 
     def move_L(self):
-        pass
+        x = float(self.tbTargetPos_X.toPlainText())
+        y = float(self.tbTargetPos_Y.toPlainText())
+        z = float(self.tbTargetPos_Z.toPlainText())
+        self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.L_Move, x, y, z)
+
     def sequence_DetectBtn(self):
-        result = self.vision.activate(target='person')
+        target = self.tbFloor.toPlainText()
+        if not target in targe_list:
+            self.tbCurrent_X.setPlainText('Target None')
+            self.tbCurrent_Y.setPlainText('Target None')
+            self.tbCurrent_Z.setPlainText('Target None')
+            return
+        
+        result = self.vision.activate(target=target)
         if result != None:
             camera_x, camera_y, camera_z = result
             self.tbCurrent_X.setPlainText(str(round(camera_x*1000,3)))
             self.tbCurrent_Y.setPlainText(str(round(camera_y*1000,3)))
             self.tbCurrent_Z.setPlainText(str(round(camera_z*1000,3)))
+            self.calculate_xyz()
         else:
             self.tbCurrent_X.setPlainText('None')
             self.tbCurrent_Y.setPlainText('None')
             self.tbCurrent_Z.setPlainText('None')
+        
 
     def sequence_PushBtn(self):
-        pass
+        safety_joint_0 = float(self.tbSafetyPos_0.toPlainText())
+        safety_joint_1 = float(self.tbSafetyPos_1.toPlainText())
+        safety_joint_2 = float(self.tbSafetyPos_2.toPlainText())
+        safety_joint_3 = float(self.tbSafetyPos_3.toPlainText())
+        safety_angles = [safety_joint_0,safety_joint_1,safety_joint_2,safety_joint_3]
+        self.manupulator.MoveJoints(safety_angles ,100, False)
+        
+        wait_x = float(self.tbWaitPos_X.toPlainText())
+        wait_y = float(self.tbWaitPos_Y.toPlainText())
+        wait_z = float(self.tbWaitPos_Z.toPlainText())
+        self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.J_Move, wait_x, wait_y, wait_z)
+        
+        
+        target_x = float(self.tbTargetPos_X.toPlainText())
+        target_y = float(self.tbTargetPos_Y.toPlainText())
+        target_z = float(self.tbTargetPos_Z.toPlainText())
+        self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.L_Move, target_x, target_y, target_z)
+
+
+        self.manupulator.MovePoint(jeus_manupulator_refactory.MoveMode.L_Move, wait_x, wait_y, wait_z)
+
+        self.manupulator.MoveJoints(safety_angles ,100, False)
+        target_joint_0 = float(self.tbInitPos_0.toPlainText())
+        target_joint_1 = float(self.tbInitPos_1.toPlainText())
+        target_joint_2 = float(self.tbInitPos_2.toPlainText())
+        target_joint_3 = float(self.tbInitPos_3.toPlainText())
+        target_angles = [target_joint_0,target_joint_1,target_joint_2,target_joint_3]
+        self.manupulator.MoveJoints(target_angles ,100, False)
+
     def sequence_all(self):
-        pass
-        
-
-    def transform_coordinates(self,x,y,z):
-        xyz = np.array([x,y,z])
-        translate_vector = np.array([self.transform_config.x,self.transform_config.y,self.transform_config.z])
-        ix = np.linalg.inv(rotx(self.transform_config.rx))
-        iz = np.linalg.inv(rotx(self.transform_config.rz))
-        rotate_vector = iz@ix
-        rv = rotate_vector@(xyz-translate_vector)
-        return rv
+        self.sequence_DetectBtn()
+        self.sequence_PushBtn()
+    
+    def stream(self):
+        # TODO - Check IsStreaming -> start Streaming or End Streaming
+        a = 0 
 
         
+def main():
+    app = QApplication([])
+    ex = MainWindow()
+    QApplication.processEvents()
+    app.exec()
+    if hasattr(ex, 'manupulator'):
+        ex.manupulator.is_finish = True
+    sys.exit()
 
 
-app = QApplication([])
-ex = MainWindow()
-QApplication.processEvents()
-app.exec_()
+if __name__ == '__main__':
+    main()
