@@ -16,15 +16,9 @@ transform:
   rx: 90
   ry: -90
   rz: 0
-<<<<<<< HEAD
-  x: -280.0
-  y: -236.0
-  z: 18.0
-=======
   x: -15.0
   y: -223.0
-  z: -15.0
->>>>>>> develop-allseq
+  z: 18.0
 wait_position:
   x: 320.0
   y: -39.246

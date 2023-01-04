@@ -600,7 +600,7 @@
     <widget class="QPushButton" name="btnSeq_SelectBtn">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>170</x>
        <y>70</y>
        <width>141</width>
        <height>81</height>
@@ -613,7 +613,7 @@
     <widget class="QPushButton" name="btnSeq_Pushbtn">
      <property name="geometry">
       <rect>
-       <x>300</x>
+       <x>330</x>
        <y>70</y>
        <width>141</width>
        <height>81</height>
@@ -626,7 +626,7 @@
     <widget class="QPushButton" name="btnSeq_All">
      <property name="geometry">
       <rect>
-       <x>450</x>
+       <x>480</x>
        <y>70</y>
        <width>141</width>
        <height>81</height>

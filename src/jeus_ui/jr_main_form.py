@@ -14,7 +14,7 @@ import os
 from dataclasses import dataclass
 import threading
 from jeus_armcontrol import  jeus_manupulator_refactory,jeus_kinematictool
-from jeus_vision import *
+from jeus_vision.jeus_vision import *
 
 import yaml
 from jeus_ui.ui_jr_main_form import *
@@ -93,6 +93,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.timer.start(100)
         # self.
         self.timer.timeout.connect(self.get_current_positions)
+        self.is_stream = False
 
     def connect_vision_module(self):
         # self.weight = 'btn_221203/best.pt'
@@ -204,8 +205,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not self.manupulator.get_torque_status(sender_idx):
             print(f'Error : Joint {int(sender_idx)+1} torque off')
             return
-        # w = worker(self,self.manupulator.move_joint,sender_idx,angle)
-        # w.start()
         self.manupulator.MoveJoint(sender_idx,angle)
 
     def calculate_xyz(self):
@@ -215,7 +214,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             x = round(cal_pc[0],3)
             y = round(cal_pc[1],3)
             z = round(cal_pc[2],3)
-            self.tbWaitPos_X.setPlainText(str(x-30))
+            self.tbWaitPos_X.setPlainText(str(x-20))
             self.tbWaitPos_Y.setPlainText(str(y))
             self.tbWaitPos_Z.setPlainText(str(z))
 
@@ -275,17 +274,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.tbCurrent_Z.setPlainText('Target None')
             return
         
-        result = self.vision.activate(target=target)
-        if result != None:
+        result = self.vision.get_Point(target=target)
+        if type(result) is not str:
             camera_x, camera_y, camera_z = result
             self.tbCurrent_X.setPlainText(str(round(camera_x*1000,3)))
             self.tbCurrent_Y.setPlainText(str(round(camera_y*1000,3)))
             self.tbCurrent_Z.setPlainText(str(round(camera_z*1000,3)))
             self.calculate_xyz()
         else:
-            self.tbCurrent_X.setPlainText('None')
-            self.tbCurrent_Y.setPlainText('None')
-            self.tbCurrent_Z.setPlainText('None')
+            self.tbCurrent_X.setPlainText(result)
+            self.tbCurrent_Y.setPlainText(result)
+            self.tbCurrent_Z.setPlainText(result)
         
 
     def sequence_PushBtn(self):
@@ -322,9 +321,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sequence_DetectBtn()
         self.sequence_PushBtn()
     
-    def stream(self):
-        # TODO - Check IsStreaming -> start Streaming or End Streaming
-        a = 0 
+    def Stream(self):
+        if not self.is_stream:
+            self.btnSeq_Stream.setText("Connecting Stream")
+        else:
+            self.btnSeq_Stream.setText("Disconnecting Stream \n WAIT!!!!")
+        QApplication.processEvents()
+
+        self.is_stream = self.vision.stream_on_off()
+        if not self.is_stream:
+            self.btnSeq_Stream.setText("Connect Stream")
+        else:
+            self.btnSeq_Stream.setText("Disconnect Stream")  
 
         
 def main():

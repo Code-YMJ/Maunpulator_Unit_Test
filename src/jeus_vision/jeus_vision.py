@@ -5,8 +5,9 @@ try:
     from .detect_btn import *
 except:
     from jeus_vision import *
+from threading import Thread, Lock
 
-
+import time
 import os
 
 SHARE_DIR = os.getcwd()
@@ -27,7 +28,10 @@ class jeus_vision():
     def __init__(self) -> None:
         super().__init__()
         self.isStreaming = False
-
+        
+        self.lock_stream = Lock()
+        self.lock_Val = Lock()
+        self.rv = dict()
     def init_camera(self):
 
         # Declare pointcloud object, for calculating pointclouds and texture mappings
@@ -63,14 +67,6 @@ class jeus_vision():
         else:
             self.config.enable_stream(rs.stream.color,  1280,720, rs.format.bgr8, 5)
 
-        # self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-
-        # if self.device_product_line == 'L500':
-        #     self.config.enable_stream(rs.stream.color, 960, 540, rs.format.bgr8, 30)
-        # else:
-        #     self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-
-
 
     def init_yolo(self,weight):
         weight_path =  os.path.join(SHARE_DIR,weight)
@@ -81,15 +77,43 @@ class jeus_vision():
         self.model = attempt_load(weight_path, device=self.device)  # load FP32 model
         # Get names and colors
         self.names =self.model.module.names if hasattr(self.model, 'module') else self.model.names  
-        self.colors = [[random.randint(0, 255) for _ in range(3)] for _ in  self.names]
+        self.colors = dict()
+        for _ in self.names.values():
+            self.colors[_]= [random.randint(0, 255) for _ in range(3)]
 
-    def stream_on_off(self, isStreaming):
+    def stream_on_off(self):        
         if self.isStreaming:
+            while self.lock_stream.locked():
+                time.sleep(0.001)
+            self.lock_stream.acquire()
             self.isStreaming = False
+            self.lock_stream.release()
+            self.thr.join()
+            return False
         else:
-            
+            self.isStreaming = True
+            self.thr = Thread(target=self.activate)
+            self.thr.start()
+            return True
 
-    def activate(self, target):
+            
+    def get_Point(self, target):
+        
+        if self.isStreaming:                
+            self.lock_Val.acquire()
+            if target in self.rv.keys():
+                buf = self.rv[target]
+            else:
+                buf = 'Not Detect'
+            self.lock_Val.release()
+            
+        else:
+            buf = "Is Not Streaming"
+        return buf
+
+
+
+    def activate(self):
         # Start streaming
         if hasattr(self, "pipeline") == False:
             self.init_camera()
@@ -105,7 +129,9 @@ class jeus_vision():
         is_done = False
         start_time = time.time_ns()
         try_count = 0
-        while is_done == False:
+        while self.isStreaming:
+            self.lock_stream.acquire()
+            
             frames = self.pipeline.wait_for_frames()
             aligned_frames = align.process(frames)
             depth_frame = aligned_frames.get_depth_frame()
@@ -115,120 +141,52 @@ class jeus_vision():
             img_color: np.ndarray = np.asanyarray(color_frame.get_data())
             img_depth: np.ndarray = np.asanyarray(depth_frame.get_data())
 
-            annotator = Annotator(img_color.copy(), line_width=3, example=str(self.names))
-            result = detect(self.device, self.model, img_color, self.names, self.colors, target,
-                            imgsz=list(img_color.shape[0:2]), conf_thres=0.4, iou_thres=0.45, isVisualized=True)
+            # annotator = Annotator(img_color.copy(), line_width=2, example=str(self.names))
+
+            result = detect(self.device, self.model, img_color, 
+                            imgsz=[736, 1280], conf_thres=0.4, iou_thres=0.45, isVisualized=True)
+            # result = detect(self.device, self.model, img_color, 
+            #                 imgsz=list(img_color.shape[0:2]), conf_thres=0.4, iou_thres=0.45, isVisualized=True)
             current_time = time.time_ns() - start_time
             try_count += 1
             if result != None:
-                label = f'{target} '
-                plot_one_box(result[1], img_color, label=label, color=[random.randint(0, 255) for _ in range(3)], line_thickness=1)            
-                annotator.box_label(result[1], label)
-                # Intrinsics & Extrinsics
-                depth_intrin = depth_frame.profile.as_video_stream_profile().intrinsics
-                color_intrin = color_frame.profile.as_video_stream_profile().intrinsics
-                depth_to_color_extrin = depth_frame.profile.get_extrinsics_to(color_frame.profile)
-
-                # Depth scale - units of the values inside a depth frame, i.e how to convert the value to units of 1 meter
-                depth_sensor = self.pipe_profile.get_device().first_depth_sensor()
-                depth_scale = depth_sensor.get_depth_scale()
-
-                # Map depth to color
-                # depth_pixel = [500,300]   # Random pixel
-                depth_point = rs.rs2_deproject_pixel_to_point(depth_intrin, result[0], depth_scale)
-
-                color_point = rs.rs2_transform_point_to_point(depth_to_color_extrin, depth_point)
-                color_pixel = rs.rs2_project_point_to_pixel(color_intrin, color_point)
-                print ('depth: ',color_point)
 
                 self.pc.map_to(color_frame)
                 self.points = self.pc.calculate(depth_frame)
                 vtx = np.asanyarray(self.points.get_vertices())
-                tex = np.asanyarray(self.points.get_texture_coordinates())
-                i = 1280*result[0][1]+result[0][0]
-                print ('point: ',[np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2])])
-                rv = (np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2]))
-                is_done = True
-                
-            elif current_time > time_out:
-                is_done = True
-            
-            img = annotator.result()
-            cv2.imshow("test", img)
-            cv2.waitKey(1)  # 1 millisecond
+
+                self.lock_Val.acquire()
+                self.rv.clear()
+                 # Write results
+                for *xyxy, conf, cls in reversed(result):
+                    c = int(cls)
+                    cl = self.names[int(cls)]          
+                    label = f'{self.names[c]} {conf:.2f}'                
+                    plot_one_box(xyxy, img_color, label=label, color=self.colors[cl], line_thickness=2)            
+                    # annotator.box_label(xyxy, label)
+                    c1, c2 = (int((xyxy[0] + xyxy[2]) / 2), int((xyxy[1] + xyxy[3]) / 2))
+                # Intrinsics & Extrinsics
+
+                    i = 1280 * c2 + c1
+                    # print ('point: ',[np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2])])
+                    rv = (np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2]))
+                    self.rv[cl] = rv
+                self.lock_Val.release()
+
+            # img = annotator.result()
+            cv2.namedWindow("test", flags=cv2.WINDOW_NORMAL);
+            cv2.imshow("test", img_color)
+            cv2.waitKey(1)  
+            self.lock_stream.release()
+            time.sleep(0.002)
+            # 1 millisecond
             # elif try_count > 20:
             #     is_done = True
             
         cv2.destroyAllWindows()
         self.pipeline.stop()
-        return rv
+        
 
-    def activate_test(self, target):
-        # Start streaming
-        if hasattr(self, "pipeline") == False:
-            self.init_camera()
-
-        self.pipe_profile = self.pipeline.start(self.config)
-
-        # Create an align object
-        # rs.align allows us to perform alignment of depth frames to others frames
-        # The "align_to" is the stream type to which we plan to align depth frames.
-        align_to = rs.stream.color
-        align = rs.align(align_to)
-        rv = None
-        is_done = False
-        start_time = time.time_ns()
-        try_count = 0
-        while is_done == False:
-            frames = self.pipeline.wait_for_frames()
-            aligned_frames = align.process(frames)
-            depth_frame = aligned_frames.get_depth_frame()
-            color_frame = aligned_frames.get_color_frame()
-            img_color: np.ndarray = np.asanyarray(color_frame.get_data())
-            img_depth: np.ndarray = np.asanyarray(depth_frame.get_data())
-            
-            
-            result = detect(self.device, self.model, img_color, self.names, self.colors, target,
-                            imgsz=list(img_color.shape[0:2]), conf_thres=0.25, iou_thres=0.45, isVisualized=False)
-            current_time = time.time_ns() - start_time
-            # try_count += 1
-            if result != None:
-
-                # Intrinsics & Extrinsics
-                depth_intrin = depth_frame.profile.as_video_stream_profile().intrinsics
-                color_intrin = color_frame.profile.as_video_stream_profile().intrinsics
-                depth_to_color_extrin = depth_frame.profile.get_extrinsics_to(color_frame.profile)
-
-                # Depth scale - units of the values inside a depth frame, i.e how to convert the value to units of 1 meter
-                depth_sensor = self.pipe_profile.get_device().first_depth_sensor()
-                depth_scale = depth_sensor.get_depth_scale()
-
-                # Map depth to color
-                # depth_pixel = [500,300]   # Random pixel
-                depth_point = rs.rs2_deproject_pixel_to_point(depth_intrin, result, depth_scale)
-
-                color_point = rs.rs2_transform_point_to_point(depth_to_color_extrin, depth_point)
-                color_pixel = rs.rs2_project_point_to_pixel(color_intrin, color_point)
-                print ('depth: ',color_point)
-                print ('depth: ',color_pixel)
-
-                self.pc.map_to(color_frame)
-                self.points = self.pc.calculate(depth_frame)
-                vtx = np.asanyarray(self.points.get_vertices())
-                tex = np.asanyarray(self.points.get_texture_coordinates())
-                i = 640*result[1]+result[0]
-                print ('depth: ',[np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2])])
-                rv = (np.float(vtx[i][0]),np.float(vtx[i][1]),np.float(vtx[i][2]))
-                is_done = True
-                
-            elif current_time > time_out:
-                is_done = True
-                
-            # elif try_count > 500:
-            #     is_done = True
-            
-
-        # self.pipeline.stop()
         
 
     def stop(self):
